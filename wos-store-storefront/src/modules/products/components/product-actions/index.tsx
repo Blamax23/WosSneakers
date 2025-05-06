@@ -36,6 +36,7 @@ export default function ProductActions({
   const countryCode = useParams().countryCode as string
 
   // If there is only 1 variant, preselect the options
+  console.log("product", product)
   useEffect(() => {
     if (product.variants?.length === 1) {
       const variantOptions = optionsAsKeymap(product.variants[0].options)
@@ -44,15 +45,25 @@ export default function ProductActions({
   }, [product.variants])
 
   const selectedVariant = useMemo(() => {
+    // console.log("product.variants", product.variants)
+    // console.log("options", product.variants?.length)
     if (!product.variants || product.variants.length === 0) {
       return
     }
 
+    // console.log("options", options)
+    // console.log("product.variants[0].options", product.variants[0].options)
+    // console.log("Result ", product.variants.find((v) => {
+    //   const variantOptions = optionsAsKeymap(v.options)
+    //   return isEqual(variantOptions, options)
+    // }))
     return product.variants.find((v) => {
       const variantOptions = optionsAsKeymap(v.options)
       return isEqual(variantOptions, options)
     })
   }, [product.variants, options])
+
+  // console.log("selectedVariant", selectedVariant)
 
   // update the options when a variant is selected
   const setOptionValue = (optionId: string, value: string) => {
@@ -63,6 +74,10 @@ export default function ProductActions({
   }
 
   //check if the selected options produce a valid variant
+  // console.log("isValid ?", product.variants?.some((v) => {
+  //   const variantOptions = optionsAsKeymap(v.options)
+  //   return isEqual(variantOptions, options)
+  // }))
   const isValidVariant = useMemo(() => {
     return product.variants?.some((v) => {
       const variantOptions = optionsAsKeymap(v.options)
@@ -73,16 +88,21 @@ export default function ProductActions({
   // check if the selected variant is in stock
   const inStock = useMemo(() => {
     // If we don't manage inventory, we can always add to cart
+    // console.log("selectedVariant", selectedVariant)
+    // console.log("selectedVariant?.manage_inventory", selectedVariant?.manage_inventory)
     if (selectedVariant && !selectedVariant.manage_inventory) {
       return true
     }
 
     // If we allow back orders on the variant, we can add to cart
+    // console.log("selectedVariant?.allow_backorder", selectedVariant?.allow_backorder)
     if (selectedVariant?.allow_backorder) {
       return true
     }
 
     // If there is inventory available, we can add to cart
+    // console.log("selectedVariant?.inventory_quantity", selectedVariant?.inventory_quantity)
+    // console.log("selectedVariant?.manage_inventory", selectedVariant?.manage_inventory)
     if (
       selectedVariant?.manage_inventory &&
       (selectedVariant?.inventory_quantity || 0) > 0
@@ -98,10 +118,10 @@ export default function ProductActions({
 
   const inView = useIntersection(actionsRef, "0px")
 
-  console.log("product variants", product.variants)
-  console.log("product options", product.options)
-  console.log("Selected variant", selectedVariant)
-  console.log("stock ?", inStock)
+  // console.log("product variants", product.variants)
+  // console.log("product options", product.options)
+  // console.log("Selected variant", selectedVariant)
+  // console.log("stock ?", inStock)
 
   // add the selected variant to the cart
   const handleAddToCart = async () => {
@@ -117,6 +137,13 @@ export default function ProductActions({
 
     setIsAdding(false)
   }
+
+  // console.log("selectedVariant:", selectedVariant);
+  // console.log("options:", options);
+  // console.log("isValidVariant:", isValidVariant);
+  // console.log("inStock:", inStock);
+  // console.log("disabled:", disabled);
+  // console.log("isAdding:", isAdding);
 
   return (
     <>
@@ -144,7 +171,6 @@ export default function ProductActions({
         </div>
 
         <ProductPrice product={product} variant={selectedVariant} />
-
         <Button
           onClick={handleAddToCart}
           disabled={

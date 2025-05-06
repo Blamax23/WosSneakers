@@ -16,10 +16,10 @@ const Overview = ({ customer, orders }: OverviewProps) => {
       <div className="hidden small:block">
         <div className="text-xl-semi flex justify-between items-center mb-4">
           <span data-testid="welcome-message" data-value={customer?.first_name}>
-            Hello {customer?.first_name}
+            Salut {customer?.first_name}
           </span>
           <span className="text-small-regular text-ui-fg-base">
-            Signed in as:{" "}
+            Connecté avec:{" "}
             <span
               className="font-semibold"
               data-testid="customer-email"
@@ -32,8 +32,8 @@ const Overview = ({ customer, orders }: OverviewProps) => {
         <div className="flex flex-col py-8 border-t border-gray-200">
           <div className="flex flex-col gap-y-4 h-full col-span-1 row-span-2 flex-1">
             <div className="flex items-start gap-x-16 mb-6">
-              <div className="flex flex-col gap-y-4">
-                <h3 className="text-large-semi">Profile</h3>
+              <div className="w-1/2 flex flex-col gap-y-4">
+                <h3 className="text-large-semi">Profil</h3>
                 <div className="flex items-end gap-x-2">
                   <span
                     className="text-3xl-semi leading-none"
@@ -43,13 +43,28 @@ const Overview = ({ customer, orders }: OverviewProps) => {
                     {getProfileCompletion(customer)}%
                   </span>
                   <span className="uppercase text-base-regular text-ui-fg-subtle">
-                    Completed
+                    Complétée
                   </span>
                 </div>
+                {getProfileCompletion(customer) === 25 && (
+                  <span className="text-sm-regular text-ui-fg-subtle">
+                    Ajoutez votre nom pour compléter votre profil.
+                  </span>
+                )}
+                {getProfileCompletion(customer) === 50 && (
+                  <span className="text-sm-regular text-ui-fg-subtle">
+                    Ajoutez votre numéro de téléphone pour compléter votre profil.
+                  </span>
+                )}
+                {getProfileCompletion(customer) === 75 && (
+                  <span className="text-sm-regular text-ui-fg-subtle">
+                    Ajoutez une adresse de facturation pour compléter votre profil.
+                  </span>
+                )}
               </div>
 
-              <div className="flex flex-col gap-y-4">
-                <h3 className="text-large-semi">Addresses</h3>
+              <div className="w-1/2 flex flex-col gap-y-4">
+                <h3 className="text-large-semi">Adresses</h3>
                 <div className="flex items-end gap-x-2">
                   <span
                     className="text-3xl-semi leading-none"
@@ -59,7 +74,7 @@ const Overview = ({ customer, orders }: OverviewProps) => {
                     {customer?.addresses?.length || 0}
                   </span>
                   <span className="uppercase text-base-regular text-ui-fg-subtle">
-                    Saved
+                    Sauvegardée(s)
                   </span>
                 </div>
               </div>
@@ -67,7 +82,7 @@ const Overview = ({ customer, orders }: OverviewProps) => {
 
             <div className="flex flex-col gap-y-4">
               <div className="flex items-center gap-x-2">
-                <h3 className="text-large-semi">Recent orders</h3>
+                <h3 className="text-large-semi">Dernières commandes</h3>
               </div>
               <ul
                 className="flex flex-col gap-y-4"
@@ -86,12 +101,12 @@ const Overview = ({ customer, orders }: OverviewProps) => {
                         >
                           <Container className="bg-gray-50 flex justify-between items-center p-4">
                             <div className="grid grid-cols-3 grid-rows-2 text-small-regular gap-x-4 flex-1">
-                              <span className="font-semibold">Date placed</span>
+                              <span className="font-semibold">Date</span>
                               <span className="font-semibold">
-                                Order number
+                                Numéro de commande
                               </span>
                               <span className="font-semibold">
-                                Total amount
+                                Prix total
                               </span>
                               <span data-testid="order-created-date">
                                 {new Date(order.created_at).toDateString()}
@@ -114,7 +129,7 @@ const Overview = ({ customer, orders }: OverviewProps) => {
                               data-testid="open-order-button"
                             >
                               <span className="sr-only">
-                                Go to order #{order.display_id}
+                                Aller à la commande #{order.display_id}
                               </span>
                               <ChevronDown className="-rotate-90" />
                             </button>
@@ -124,7 +139,7 @@ const Overview = ({ customer, orders }: OverviewProps) => {
                     )
                   })
                 ) : (
-                  <span data-testid="no-orders-message">No recent orders</span>
+                  <span data-testid="no-orders-message">Aucune commande</span>
                 )}
               </ul>
             </div>

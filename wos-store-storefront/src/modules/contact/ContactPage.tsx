@@ -23,7 +23,7 @@ const ContactPage = () => {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-semibold mb-8">Contacte-nous</h1>
+      <h1 className="text-3xl font-semibold mb-8">Contactez-nous</h1>
 
       {submitted ? (
         <div className="bg-green-100 text-green-800 px-4 py-3 rounded">

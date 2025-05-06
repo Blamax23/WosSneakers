@@ -2,6 +2,9 @@ import { loadEnv, defineConfig } from '@medusajs/framework/utils'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
+const dotenv = require("dotenv");
+dotenv.config();
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
@@ -13,4 +16,73 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     },
   },
+  modules: [
+    {
+      resolve: "@medusajs/medusa/payment",
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/medusa/payment-stripe",
+            id: "stripe",
+            options: {
+              apiKey: process.env.STRIPE_API_KEY,
+              capture: true,
+            },
+          },
+        ],
+      },
+    },
+    {
+      resolve: "@medusajs/medusa/fulfillment",
+      options: {
+        providers: [
+          // default provider
+          {
+            resolve: "@medusajs/medusa/fulfillment-manual",
+            id: "manual",
+          },
+          {
+            resolve: "./src/modules/shipstation",
+            id: "shipstation",
+            options: {
+              api_key: process.env.SHIPSTATION_API_KEY,
+            },
+          },
+        ],
+      },
+    },
+  ],
+
+  // plugins: [
+  //   {
+  //     resolve: `medusa-fulfillment-mondialrelay`,
+  //     options: {
+  //       apiBaseUrl: process.env.MONDIAL_RELAY_API_BASE_URL,
+  //       culture: process.env.MONDIAL_RELAY_CULTURE,
+  //       login: process.env.MONDIAL_RELAY_LOGIN,
+  //       password: process.env.MONDIAL_RELAY_PASSWORD,
+  //       customerId: process.env.MONDIAL_RELAY_CUSTOMER_ID
+  //     },
+  //   },
+  // ],
+  // modules: [
+  //   {
+  //     resolve: "@medusajs/medusa/notification",
+  //     options: {
+  //       providers: [
+  //         {
+  //           resolve: "./src/modules/mailgun-notification", // chemin vers votre module
+  //           id: "mailgun",
+  //           options: {
+  //             channels: ["email"],
+  //             apiKey: "48fdcd808ad7df651e370bd89b8b2ec8-67bd41c2-70b21982",
+  //             domain: "sandboxea103a0c2f944bb3a10367dd9e2a8f8a.mailgun.org",
+  //             // autres options nécessaires
+  //           },
+  //         },
+  //       ],
+  //     },
+  //   },
+  // ],
+
 })

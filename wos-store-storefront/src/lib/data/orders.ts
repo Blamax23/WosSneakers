@@ -75,7 +75,7 @@ export const createTransferRequest = async (
   const id = formData.get("order_id") as string
 
   if (!id) {
-    return { success: false, error: "Order ID is required", order: null }
+    return { success: false, error: "Le numéro de commande est obligatoire", order: null }
   }
 
   const headers = await getAuthHeaders()

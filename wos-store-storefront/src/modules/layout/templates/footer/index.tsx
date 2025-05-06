@@ -4,7 +4,6 @@ import { Text, clx } from "@medusajs/ui"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import MedusaCTA from "@modules/layout/components/medusa-cta"
-import NewsletterForm from "@modules/newsletter/components/newsletter-form"
 
 export default async function Footer() {
   const { collections } = await listCollections({
@@ -23,12 +22,6 @@ export default async function Footer() {
             >
               
             </LocalizedClientLink>
-          </div>
-          <div className="py-12 max-w-4xl mx-auto px-4">
-            <h1 className="text-2xl font-bold mb-8">Newsletter</h1>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <NewsletterForm />
-            </div>
           </div>
           <div className="text-small-regular gap-10 md:gap-x-16 grid grid-cols-2 sm:grid-cols-3">
             {productCategories && productCategories?.length > 0 && (

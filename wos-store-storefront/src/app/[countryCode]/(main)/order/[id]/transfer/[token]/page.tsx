@@ -14,21 +14,22 @@ export default async function TransferPage({
       <TransferImage />
       <div className="flex flex-col gap-y-6">
         <Heading level="h1" className="text-xl text-zinc-900">
-          Transfer request for order {id}
+          Demande de transfert pour la commande n°{id}
         </Heading>
         <Text className="text-zinc-600">
-          You&#39;ve received a request to transfer ownership of your order ({id}).
-          If you agree to this request, you can approve the transfer by clicking
-          the button below.
+          Vous avez reçu une demande de transfert de propriété de votre commande
+          ({id}). Si vous acceptez cette demande, vous pouvez approuver le
+          transfert en cliquant sur le bouton ci-dessous.
         </Text>
         <div className="w-full h-px bg-zinc-200" />
         <Text className="text-zinc-600">
-          If you accept, the new owner will take over all responsibilities and
-          permissions associated with this order.
+          Si vous acceptez, le nouveau propriétaire prendra en charge toutes les
+          responsabilités et autorisations associées à cette commande.
         </Text>
         <Text className="text-zinc-600">
-          If you do not recognize this request or wish to retain ownership, no
-          further action is required.
+          Si vous n'êtes pas le propriétaire de cette commande, veuillez ignorer
+          ce message. Si vous avez des questions, veuillez contacter le
+          service client de WOS Sneakers.
         </Text>
         <div className="w-full h-px bg-zinc-200" />
         <TransferActions id={id} token={token} />

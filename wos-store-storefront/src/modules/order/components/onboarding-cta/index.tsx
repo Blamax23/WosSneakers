@@ -8,17 +8,17 @@ const OnboardingCta = ({ orderId }: { orderId: string }) => {
     <Container className="max-w-4xl h-full bg-ui-bg-subtle w-full">
       <div className="flex flex-col gap-y-4 center p-4 md:items-center">
         <Text className="text-ui-fg-base text-xl">
-          Your test order was successfully created! 🎉
+          Votre commande de test a été créée avec succès ! 🎉
         </Text>
         <Text className="text-ui-fg-subtle text-small-regular">
-          You can now complete setting up your store in the admin.
+          Vous pouvez maintenant vous connecter à l'interface d'administration de votre boutique pour gérer vos commandes et produits.
         </Text>
         <Button
           className="w-fit"
           size="xlarge"
           onClick={() => resetOnboardingState(orderId)}
         >
-          Complete setup in admin
+          Terminer le processus d'intégration
         </Button>
       </div>
     </Container>
