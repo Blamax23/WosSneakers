@@ -18,7 +18,7 @@ export default async function Contact(props: {
 
   return (
     <div className="py-12">
-      <ContactPage />
+      <ContactPage countryCode={countryCode} />
     </div>
   )
 }

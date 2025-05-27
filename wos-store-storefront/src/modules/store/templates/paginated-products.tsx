@@ -55,6 +55,7 @@ export default async function PaginatedProducts({
     return null
   }
 
+  console.log("queryParams oui", queryParams)
   let {
     response: { products, count },
   } = await listProductsWithSort({

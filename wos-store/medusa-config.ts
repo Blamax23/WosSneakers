@@ -51,6 +51,45 @@ module.exports = defineConfig({
         ],
       },
     },
+    {
+      resolve: "@medusajs/medusa/notification",
+      options: {
+        providers: [
+          {
+            resolve: "./src/modules/resend",
+            id: "resend",
+            options: {
+              channels: ["email"],
+              api_key: process.env.RESEND_API_KEY,
+              from: process.env.RESEND_FROM_EMAIL,
+            },
+            templates: [
+              {
+                template_id: "customer-created",
+                type: "email",
+                // les autres templates...
+              },
+              {
+                template_id: "order-placed",
+                type: "email",
+              },
+              {
+                template_id: "order-completed",
+                type: "email",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      resolve: "./src/modules/algolia",
+      options: {
+        appId: process.env.ALGOLIA_APP_ID!,
+        apiKey: process.env.ALGOLIA_API_KEY!,
+        productIndexName: process.env.ALGOLIA_PRODUCT_INDEX_NAME!,
+      },
+    },
   ],
 
   // plugins: [

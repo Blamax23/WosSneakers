@@ -2,7 +2,11 @@
 
 import { useState } from "react"
 
-const ContactPage = () => {
+type Props = {
+  countryCode: string
+}
+
+const ContactPage = ({ countryCode }: Props) => {
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -14,12 +18,27 @@ const ContactPage = () => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Form submitted:", form)
-    setSubmitted(true)
-    // Ici tu peux plugger une API ou un service externe
+
+    try {
+      const res = await fetch(`${process.env.BACKEND_URL}/api/store/custom`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(form)
+      })
+
+      if (!res.ok) throw new Error("Erreur lors de l'envoi")
+
+      setSubmitted(true)
+    } catch (err) {
+      console.error("Erreur lors de l'envoi du message :", err)
+      // Tu peux ajouter une gestion d'erreur ici
+    }
   }
+
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">

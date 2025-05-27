@@ -3,14 +3,16 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useState } from "react"
 import SortProducts, { SortOptions } from "./sort-products"
+import GetCollectionsChoices from "./filters-products"
 
 type RefinementListProps = {
   sortBy: SortOptions
+  collections?: string
   search?: boolean
   'data-testid'?: string
 }
 
-const RefinementList = ({ sortBy, 'data-testid': dataTestId }: RefinementListProps) => {
+const RefinementList = ({ sortBy, collections, 'data-testid': dataTestId }: RefinementListProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -55,12 +57,15 @@ const RefinementList = ({ sortBy, 'data-testid': dataTestId }: RefinementListPro
     setQueryParams("colors", updatedColors.join(","))
   }
 
+  const selectedCollections = collections?.split(",") || []
+
   return (
     <div className="flex small:flex-col gap-12 py-4 mb-8 small:px-0 pl-6 small:min-w-[250px] small:ml-[1.675rem]">
 
       {/* Section des produits triés */}
       <SortProducts sortBy={sortBy} setQueryParams={setQueryParams} data-testid={dataTestId} />
 
+      <GetCollectionsChoices collectionsChoisies={selectedCollections.join(",")} />
       {/* Filtre par prix */}
       <div className="mb-6 sm:w-full md:w-auto">
         <h3 className="font-semibold text-lg mb-2">Filtrer par prix</h3>

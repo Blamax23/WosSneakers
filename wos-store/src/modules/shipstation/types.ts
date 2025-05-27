@@ -132,3 +132,9 @@ export type Label = {
         zpl: string
     }
 }
+
+export type VoidLabelResponse = {
+    approved: boolean
+    message: string
+    reason_code?: string
+}

@@ -24,6 +24,49 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
         this.options_ = options
         this.client = new ShipStationClient(options) // Assurez-vous que ShipStationClient est bien défini
     }
+
+    async validateFulfillmentData(
+        optionData: Record<string, unknown>, 
+        data: Record<string, unknown>, 
+        context: Record<string, unknown>
+    ): Promise<any> {
+        let { shipment_id } = data as {
+            shipment_id?: string
+        }
+
+        console.log("context", context)
+
+        if (!shipment_id) {
+            const { carrier_id, carrier_service_code } = optionData as {
+                carrier_id: string
+                carrier_service_code: string
+            }
+
+            const shipment = await this.createShipment({
+                carrier_id,
+                carrier_service_code,
+                from_address: {
+                // @ts-ignore
+                name: context.from_location?.name,
+                // @ts-ignore
+                address: context.from_location?.address,
+                },
+                // @ts-ignore
+                to_address: context.shipping_address,
+                // @ts-ignore
+                items: context.items || [],
+                // @ts-ignore
+                currency_code: context.currency_code,
+            })
+            shipment_id = shipment.shipment_id
+        }
+
+        return {
+            ...data,
+            shipment_id,
+        }
+    }
+
     
     private async createShipment({
         carrier_id,
@@ -49,7 +92,7 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
                 "from_location.address is required to calculate shipping rate"
             )
         }
-
+        
         const ship_from: ShipStationAddress = {
             name: from_address?.name || "",
             phone: from_address?.address?.phone || "",
@@ -69,7 +112,7 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
         }
 
         const ship_to: ShipStationAddress = {
-            name: "",
+            name: to_address?.first_name || "",
             phone: to_address.phone || "",
             address_line1: to_address.address_1 || "",
             city_locality: to_address.city || "",
@@ -82,6 +125,8 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
         const packageWeight = items.reduce((sum, item) => {
             return sum + (item["variant"]?.weight || 0)
         }, 0)
+
+        console.log("packageWeight", packageWeight)
 
         return await this.client.getShippingRates({
             shipment: {
@@ -128,6 +173,8 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
         }
         let rate: Rate | undefined
 
+        console.log("context", context['items'][0]['fulfillment_sets'])
+
         if (!shipment_id) {
             // On convertit context.items en CartLineItemDTO
             
@@ -170,6 +217,8 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
 
         const originalShipment = await this.client.getShipment(shipment_id)
 
+        console.log("originalShipment", originalShipment)
+
         const orderItemsToFulfill: OrderLineItemDTO[] | CartLineItemDTO[] = []
 
         items.map((item) => {
@@ -183,6 +232,8 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
                 quantity: (item as any).quantity,
             })
         })
+
+        console.log("orderItemsToFulfill", orderItemsToFulfill)
 
         const newShipment = await this.createShipment({
             carrier_id: originalShipment.carrier_id,
@@ -240,6 +291,16 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
     
     async canCalculate(data: CreateShippingOptionDTO): Promise<boolean> {
         return true
+    }
+
+    async cancelFulfillment(data: Record<string, unknown>): Promise<any> {
+        const { label_id, shipment_id } = data as {
+            label_id: string
+            shipment_id: string
+        }
+
+        await this.client.voidLabel(label_id)
+        await this.client.cancelShipment(shipment_id)
     }
 }
 

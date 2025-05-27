@@ -8,6 +8,7 @@ import {
     ShipStationAddress,
     Shipment,
     Label,
+    VoidLabelResponse,
 } from "./types"
 // other imports...
 import { 
@@ -87,6 +88,7 @@ export class ShipStationClient {
     async getShippingRates(
         data: GetShippingRatesRequest
     ): Promise<GetShippingRatesResponse> {
+        console.log(data)
         return await this.sendRequest("/rates", {
             method: "POST",
             body: JSON.stringify(data),
@@ -119,5 +121,16 @@ export class ShipStationClient {
         })
     }
     
-    
+    async voidLabel(id: string): Promise<VoidLabelResponse> {
+        return await this.sendRequest(`/labels/${id}/void`, {
+            method: "PUT",
+        })
+    }
+
+    async cancelShipment(id: string): Promise<void> {
+        return await this.sendRequest(`/shipments/${id}/cancel`, {
+            method: "PUT",
+        })
+    }
+
 }

@@ -20,7 +20,7 @@ export const retrieveCollection = async (id: string) => {
     .then(({ collection }) => collection)
 }
 
-export const listCollections = async (
+export const  listCollections = async (
   queryParams: Record<string, string> = {}
 ): Promise<{ collections: HttpTypes.StoreCollection[]; count: number }> => {
   const next = {

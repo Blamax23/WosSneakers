@@ -208,7 +208,7 @@ const Shipping: React.FC<ShippingProps> = ({
                       )?.id
 
                       if (id) {
-                        handleSetShippingMethod(id, "pickup")
+                        handleSetShippingMethod(id, "shipping")
                       }
                     }}
                   >
