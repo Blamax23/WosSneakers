@@ -41,13 +41,13 @@ module.exports = defineConfig({
             resolve: "@medusajs/medusa/fulfillment-manual",
             id: "manual",
           },
-          {
-            resolve: "./src/modules/shipstation",
-            id: "shipstation",
-            options: {
-              api_key: process.env.SHIPSTATION_API_KEY,
-            },
-          },
+          // {
+          //   resolve: "./src/modules/shipstation",
+          //   id: "shipstation",
+          //   options: {
+          //     api_key: process.env.SHIPSTATION_API_KEY,
+          //   },
+          // },
         ],
       },
     },
@@ -90,6 +90,14 @@ module.exports = defineConfig({
         productIndexName: process.env.ALGOLIA_PRODUCT_INDEX_NAME!,
       },
     },
+    // {
+    //   resolve: '@hifive-dev/medusa-fulfillment-sendcloud',
+    //   options: {
+    //     api_key: process.env.SENDCLOUD_PUBLIC_KEY,
+    //     api_secret: process.env.SENDCLOUD_PRIVATE_KEY,
+    //     // Autres options si nécessaire
+    //   },
+    // },
   ],
 
   // plugins: [

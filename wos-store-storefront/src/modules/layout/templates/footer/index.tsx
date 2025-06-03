@@ -2,7 +2,7 @@ import { listCategories } from "@lib/data/categories"
 import { listCollections } from "@lib/data/collections"
 import { Text, clx } from "@medusajs/ui"
 import { Instagram, Facebook, Music2 } from "lucide-react"
-
+import NewsletterForm from "./newsletter"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import MedusaCTA from "@modules/layout/components/medusa-cta"
@@ -184,6 +184,14 @@ export default async function Footer() {
                   </a>
                 </li>
               </ul>
+            </div>
+            <div className="flex flex-col gap-y-2">
+              <span className="txt-small-plus txt-ui-fg-base">Newsletter</span>
+              <Text className="txt-compact-small">
+                Inscrivez-vous à notre newsletter pour recevoir les dernières
+                nouvelles et offres exclusives.
+              </Text>
+              <NewsletterForm />
             </div>
           </div>
         </div>

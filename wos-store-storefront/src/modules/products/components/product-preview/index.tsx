@@ -11,25 +11,12 @@ export default function ProductPreview({
   isFeatured,
   region,
 }: {
-  product: HttpTypes.StoreProduct
+  product: HttpTypes.StoreProduct & { cheapestPrice?: any }
   isFeatured?: boolean
   region: HttpTypes.StoreRegion
 }) {
-  // const pricedProduct = await listProducts({
-  //   regionId: region.id,
-  //   queryParams: { id: [product.id!] },
-  // }).then(({ response }) => response.products[0])
+  const { cheapestPrice } = product
 
-  // if (!pricedProduct) {
-  //   return null
-  // }
-
-  const { cheapestPrice } = getProductPrice({
-    product,
-  })
-
-  console.log(isFeatured)
-  
   return (
     <LocalizedClientLink href={`/products/${product.handle}`} className="group">
       <div data-testid="product-wrapper">

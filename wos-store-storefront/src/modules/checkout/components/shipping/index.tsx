@@ -138,6 +138,13 @@ const Shipping: React.FC<ShippingProps> = ({
       return id
     })
 
+    const selectedOption = availableShippingMethods?.find(
+      (method) => method.id === currentId
+    )
+
+    console.log("Je suis juste avant setShippingMethod")
+
+
     await setShippingMethod({ cartId: cart.id, shippingMethodId: id })
       .catch((err) => {
         setShippingMethodId(currentId)

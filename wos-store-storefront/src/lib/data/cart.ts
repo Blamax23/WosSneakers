@@ -225,14 +225,33 @@ export async function setShippingMethod({
     ...(await getAuthHeaders()),
   }
 
+  const availableOptions = await sdk.store.fulfillment.listCartOptions(cartId, {}, headers)
+  const selectedOption = availableOptions.shipping_options.find(
+    (option) => option.id === shippingMethodId
+  )
+
   return sdk.store.cart
     .addShippingMethod(cartId, { option_id: shippingMethodId }, {}, headers)
     .then(async () => {
+      if (selectedOption) {
+        await sdk.store.carts.update(
+          cartId,
+          {
+            metadata: {
+              selected_shipping_option: selectedOption,
+            },
+          },
+          {},
+          headers
+        )
+      }
+
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
     })
     .catch(medusaError)
 }
+
 
 export async function initiatePaymentSession(
   cart: HttpTypes.StoreCart,

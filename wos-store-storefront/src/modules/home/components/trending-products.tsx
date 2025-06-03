@@ -5,8 +5,8 @@ import { HttpTypes } from "@medusajs/types"
 
 
 type Props = {
-  products: HttpTypes.StoreProduct[]
-  region: any
+    products: HttpTypes.StoreProduct[]
+    region: any
 }
 
 const TrendingProducts = ({ products, region }: Props) => {
@@ -22,7 +22,7 @@ const TrendingProducts = ({ products, region }: Props) => {
                 <ul className="grid grid-cols-4 small:grid-cols-3 gap-x-6 gap-y-24 small:gap-y-36">
                     {products.map((product) => (
                         <li key={product.id}>
-                        <ProductPreview product={product} region={region} isFeatured />
+                            <ProductPreview product={product} region={region} isFeatured />
                         </li>
                     ))}
                 </ul>
