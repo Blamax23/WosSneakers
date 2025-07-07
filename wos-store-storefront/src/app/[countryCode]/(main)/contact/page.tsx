@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default async function Contact(props: {
   params: { countryCode: string }
 }) {
-  const { countryCode } = props.params
+  const { countryCode } = await props.params
   const region = await getRegion(countryCode)
 
   if (!region) return null

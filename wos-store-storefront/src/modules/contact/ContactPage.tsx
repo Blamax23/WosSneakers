@@ -22,13 +22,16 @@ const ContactPage = ({ countryCode }: Props) => {
     e.preventDefault()
 
     try {
-      const res = await fetch(`${process.env.BACKEND_URL}/api/store/custom`, {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify(form),
       })
+
+
+      console.log("Voici le res : ", res)
 
       if (!res.ok) throw new Error("Erreur lors de l'envoi")
 

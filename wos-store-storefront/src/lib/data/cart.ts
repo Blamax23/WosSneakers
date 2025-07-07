@@ -14,7 +14,8 @@ import {
   setCartId,
 } from "./cookies"
 import { getRegion } from "./regions"
-
+import { Weight } from "lucide-react"
+import { OrderEdit } from "@medusajs/js-sdk/dist/admin/order-edit"
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
  * @param cartId - optional - The ID of the cart to retrieve.
@@ -225,7 +226,7 @@ export async function setShippingMethod({
     ...(await getAuthHeaders()),
   }
 
-  const availableOptions = await sdk.store.fulfillment.listCartOptions(cartId, {}, headers)
+  const availableOptions = await sdk.store.fulfillment.listCartOptions({ cart_id: cartId }, {})
   const selectedOption = availableOptions.shipping_options.find(
     (option) => option.id === shippingMethodId
   )
@@ -234,7 +235,7 @@ export async function setShippingMethod({
     .addShippingMethod(cartId, { option_id: shippingMethodId }, {}, headers)
     .then(async () => {
       if (selectedOption) {
-        await sdk.store.carts.update(
+        await sdk.store.cart.update(
           cartId,
           {
             metadata: {
@@ -426,19 +427,121 @@ export async function placeOrder(cartId?: string) {
       return cartRes
     })
     .catch(medusaError)
+  console.log("Placing order for country code:", cartRes);
 
   if (cartRes?.type === "order") {
-    const countryCode =
-      cartRes.order.shipping_address?.country_code?.toLowerCase()
+    const order = cartRes.order
+    const countryCode = order.shipping_address?.country_code?.toLowerCase()
 
     const orderCacheTag = await getCacheTag("orders")
-    revalidateTag(orderCacheTag)
-
+    revalidateTag(orderCacheTag)    // Clean up + redirect
     removeCartId()
-    redirect(`/${countryCode}/order/${cartRes?.order.id}/confirmed`)
+    redirect(`/${countryCode}/order/${order.id}/confirmed`)
   }
+}
 
-  return cartRes.cart
+const BACKEND_URL = 'http://localhost:9000'
+const email = 'auth@auth.com'
+const password = 'secret'
+const PUBLISHABLE_API_KEY = 'pk_91e7eb4015e608a7313f9ec6174511c516e8847d77d16835545c113595633fda'
+
+export async function sendOrderToSendCloud(order: any) {
+  console.log("order data here ", order.shipping_methods[0].data.shipment_id)
+  console.log("weight : ", order.items[0].variant?.product?.weight || '')
+  console.log("hs_code : ", order.items[0].variant?.product?.hs_code || '')
+
+  try {
+    const payload = {
+      order: {
+        id: order.id,
+        email: order.email,
+        status: order.status,
+        fulfillment_status: order.fulfillment_status,
+        currency_code: order.currency_code,
+        shipping_address: {
+          first_name: order.shipping_address?.first_name || '',
+          last_name: order.shipping_address?.last_name || '',
+          address_1: order.shipping_address?.address_1 || '',
+          address_2: order.shipping_address?.address_2 || '',
+          city: order.shipping_address?.city || '',
+          postal_code: order.shipping_address?.postal_code || '',
+          country_code: order.shipping_address?.country_code || '',
+          phone: order.shipping_address?.phone || '',
+          company: order.shipping_address?.company || ''
+        },
+        items: order.items?.map((item: any) => ({
+          title: item.title,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          weight: item.variant?.product?.weight * 1000 || '',
+          hs_tariff_number: item.variant?.product?.hs_code || '',
+          variant: {
+            sku: item.variant?.sku || '',
+            product: {
+              title: item.variant?.product?.title || '',
+            }
+          }
+        })) || [],
+        shipping_methods: order.shipping_methods?.map((method: any) => ({
+          shipping_option: {
+            name: method.name || '',
+            price: method.amount,
+            id: order.shipping_methods[0].data.shipment_id
+          }
+        })) || [],
+        total: order.total,
+        created_at: order.created_at,
+        updated_at: order.updated_at
+      }
+    };
+
+    console.log("Voici le payload : ", payload.order.shipping_methods)
+
+    const loginRes = await fetch(`${BACKEND_URL}/auth/customer/emailpass`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+    const loginData = await loginRes.json()
+    if (!loginRes.ok) throw new Error(loginData.message || 'Login failed')
+
+    const jwtToken = loginData.token
+
+    const sessionRes = await fetch(`${BACKEND_URL}/auth/session`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${jwtToken}` },
+      credentials: 'include',
+    })
+
+    const rawSetCookie = sessionRes.headers.get('set-cookie')
+    if (!rawSetCookie) throw new Error('No session cookie received')
+
+    const sidMatch = rawSetCookie.match(/connect\.sid=([^;]+)/)
+    if (!sidMatch) throw new Error('Session ID not found')
+    const sessionId = sidMatch[1]
+
+    const labelRes = await fetch(`${BACKEND_URL}/store/sendscloud/label/${order.id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-publishable-api-key': PUBLISHABLE_API_KEY,
+        Cookie: `connect.sid=${sessionId}`,
+      },
+      body: JSON.stringify(payload),
+    })
+
+    console.log("Label Res : ", labelRes)
+
+    const labelData = await labelRes.json()
+
+    if (!labelRes.ok) {
+      console.error('❌ SendCloud Error:', labelData.message)
+    } else {
+      console.log('✅ SendCloud Label Created:', labelData)
+    }
+  } catch (err: any) {
+    console.error('❌ Failed to send order to SendCloud:', err.message)
+  }
 }
 
 /**

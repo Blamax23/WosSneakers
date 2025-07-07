@@ -18,6 +18,14 @@ module.exports = defineConfig({
   },
   modules: [
     {
+      resolve: `./src/modules/sendcloud`,
+      options: {
+        sendcloudApiKey: process.env.NEXT_PUBLIC_SENDCLOUD_PUBLIC_KEY,
+        sendcloudApiSecret: process.env.NEXT_PUBLIC_SENDCLOUD_PRIVATE_KEY,
+      },
+
+    },
+    {
       resolve: "@medusajs/medusa/payment",
       options: {
         providers: [
@@ -40,6 +48,15 @@ module.exports = defineConfig({
           {
             resolve: "@medusajs/medusa/fulfillment-manual",
             id: "manual",
+          },
+          {
+            // if module provider is in a plugin, use `plugin-name/providers/my-fulfillment`
+            resolve: "./src/modules/sendcloud-provider",
+            id: "my-fulfillment",
+            options: {
+              sendcloudApiKey: process.env.NEXT_PUBLIC_SENDCLOUD_PUBLIC_KEY,
+              sendcloudApiSecret: process.env.NEXT_PUBLIC_SENDCLOUD_PRIVATE_KEY,
+            },
           },
           // {
           //   resolve: "./src/modules/shipstation",
@@ -90,6 +107,10 @@ module.exports = defineConfig({
         productIndexName: process.env.ALGOLIA_PRODUCT_INDEX_NAME!,
       },
     },
+    {
+      resolve: "./src/modules/documents",
+      options: {}
+    }
     // {
     //   resolve: '@hifive-dev/medusa-fulfillment-sendcloud',
     //   options: {
@@ -99,37 +120,4 @@ module.exports = defineConfig({
     //   },
     // },
   ],
-
-  // plugins: [
-  //   {
-  //     resolve: `medusa-fulfillment-mondialrelay`,
-  //     options: {
-  //       apiBaseUrl: process.env.MONDIAL_RELAY_API_BASE_URL,
-  //       culture: process.env.MONDIAL_RELAY_CULTURE,
-  //       login: process.env.MONDIAL_RELAY_LOGIN,
-  //       password: process.env.MONDIAL_RELAY_PASSWORD,
-  //       customerId: process.env.MONDIAL_RELAY_CUSTOMER_ID
-  //     },
-  //   },
-  // ],
-  // modules: [
-  //   {
-  //     resolve: "@medusajs/medusa/notification",
-  //     options: {
-  //       providers: [
-  //         {
-  //           resolve: "./src/modules/mailgun-notification", // chemin vers votre module
-  //           id: "mailgun",
-  //           options: {
-  //             channels: ["email"],
-  //             apiKey: "48fdcd808ad7df651e370bd89b8b2ec8-67bd41c2-70b21982",
-  //             domain: "sandboxea103a0c2f944bb3a10367dd9e2a8f8a.mailgun.org",
-  //             // autres options nécessaires
-  //           },
-  //         },
-  //       ],
-  //     },
-  //   },
-  // ],
-
 })

@@ -80,7 +80,7 @@ const Shipping: React.FC<ShippingProps> = ({
     (sm) => sm.service_zone?.fulfillment_set?.type === "pickup"
   )
 
-  console.log("shippingMethods", _shippingMethods)
+  console.log("shippingMethods : ", _shippingMethods)
   console.log("pickupMethods", _pickupMethods)
 
   const hasPickupOptions = !!_pickupMethods?.length

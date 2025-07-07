@@ -7,6 +7,13 @@ import { SortOptions } from "@modules/store/components/refinement-list/sort-prod
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
 
+function fetchWithTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error("Request timed out")), ms)
+  );
+  return Promise.race([promise, timeout]);
+}
+
 export const listProducts = async ({
   pageParam = 1,
   queryParams,
@@ -53,36 +60,44 @@ export const listProducts = async ({
     ...(await getCacheOptions("products")),
   }
 
-  return sdk.client
-    .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
-      `/store/products`,
-      {
-        method: "GET",
-        query: {
-          limit,
-          offset,
-          region_id: region?.id,
-          fields:
-            "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags",
-          ...queryParams,
-        },
-        headers,
-        next,
-        cache: "force-cache",
-      }
-    )
-    .then(({ products, count }) => {
-      const nextPage = count > offset + limit ? pageParam + 1 : null
-
-      return {
-        response: {
-          products,
-          count,
-        },
-        nextPage: nextPage,
-        queryParams,
-      }
-    })
+  try {
+    const result = await fetchWithTimeout(
+      sdk.client.fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
+        `/store/products`,
+        {
+          method: "GET",
+          query: {
+            limit,
+            offset,
+            region_id: region?.id,
+            fields:
+              "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags",
+            ...queryParams,
+          },
+          headers,
+          next,
+          cache: "force-cache",
+        }
+      ),
+      8000 // 8 seconds timeout
+    );
+    const { products, count } = result;
+    const nextPage = count > offset + limit ? pageParam + 1 : null;
+    return {
+      response: {
+        products,
+        count,
+      },
+      nextPage: nextPage,
+      queryParams,
+    };
+  } catch (error) {
+    console.error("listProducts error:", error);
+    return {
+      response: { products: [], count: 0 },
+      nextPage: null,
+    };
+  }
 }
 
 export const listTrendingProducts = async () => {
@@ -95,28 +110,30 @@ export const listTrendingProducts = async () => {
   }
 
   // Utiliser le SDK pour récupérer les produits
-  return sdk.client
-  .fetch<{ products: HttpTypes.StoreProduct[] }>(
-    `/store/products`,
-    {
-      method: "GET",
-      query: {
-        fields: "*metadata", // On récupère uniquement les métadonnées
-      },
-      headers,
-      next,
-      cache: "force-cache",
-    }
-  )
-  .then(({ products }) => {
-    console.log(products)
-    // Filtrer les produits pour ne garder que ceux avec "Tendance" à true
-    const trendingProducts = products.filter(
+  try {
+    const result = await fetchWithTimeout(
+      sdk.client.fetch<{ products: HttpTypes.StoreProduct[] }>(
+        `/store/products`,
+        {
+          method: "GET",
+          query: {
+            fields: "*metadata", // On récupère uniquement les métadonnées
+          },
+          headers,
+          next,
+          cache: "force-cache",
+        }
+      ),
+      8000
+    );
+    const trendingProducts = result.products.filter(
       (product) => product.metadata?.Tendance === true
     );
-
-    return trendingProducts; // Retourne directement un tableau de produits tendances
-  });
+    return trendingProducts;
+  } catch (error) {
+    console.error("listTrendingProducts error:", error);
+    return [];
+  }
 }
 
 /**
