@@ -259,18 +259,38 @@ export async function initiatePaymentSession(
   data: HttpTypes.StoreInitializePaymentSession
 ) {
   const headers = {
+    "Content-Type": "application/json",
     ...(await getAuthHeaders()),
   }
 
-  return sdk.store.payment
-    .initiatePaymentSession(cart, data, {}, headers)
-    .then(async (resp) => {
-      const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
-      return resp
-    })
-    .catch(medusaError)
+  console.log("Cart : ", cart)
+  console.log("Data : ", data)
+  console.log("Headers : ", headers)
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/carts/${cart.id}/payment-sessions`, {
+    method: "POST",
+    headers: {
+      "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
+    },
+    credentials: "include", // 👈 indispensable pour que les cookies partent
+    body: JSON.stringify(data),
+  })
+
+  console.log("Voici le res : ", res)
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    console.error("Payment session init failed:", err)
+    throw new Error(err.message || "Échec de l'initiation du paiement")
+  }
+
+  // 🔁 Revalidation côté serveur si nécessaire
+  const cartCacheTag = await getCacheTag("carts")
+  revalidateTag(cartCacheTag)
+
+  return await res.json()
 }
+
 
 export async function applyPromotions(codes: string[]) {
   const cartId = await getCartId()
@@ -436,8 +456,39 @@ export async function placeOrder(cartId?: string) {
     const orderCacheTag = await getCacheTag("orders")
     revalidateTag(orderCacheTag)    // Clean up + redirect
     removeCartId()
-    redirect(`/${countryCode}/order/${order.id}/confirmed`)
+    // NE PAS faire le redirect ici !
+    return order
   }
+
+  // Par défaut retourne null ou throw
+  return null
+}
+
+export async function getSessionId(email: string, password: string) {
+  const loginRes = await fetch(`${BACKEND_URL}/auth/customer/emailpass`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  })
+  const loginData = await loginRes.json()
+  if (!loginRes.ok) throw new Error(loginData.message || 'Login failed')
+
+  const jwtToken = loginData.token
+
+  const sessionRes = await fetch(`${BACKEND_URL}/auth/session`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${jwtToken}` },
+    credentials: 'include',
+  })
+
+  const rawSetCookie = sessionRes.headers.get('set-cookie')
+  if (!rawSetCookie) throw new Error('No session cookie received')
+
+  const sidMatch = rawSetCookie.match(/connect\.sid=([^;]+)/)
+  if (!sidMatch) throw new Error('Session ID not found')
+  const sessionId = sidMatch[1]
+
+  return sessionId
 }
 
 const BACKEND_URL = 'http://localhost:9000'
@@ -446,9 +497,9 @@ const password = 'secret'
 const PUBLISHABLE_API_KEY = 'pk_91e7eb4015e608a7313f9ec6174511c516e8847d77d16835545c113595633fda'
 
 export async function sendOrderToSendCloud(order: any) {
-  console.log("order data here ", order.shipping_methods[0].data.shipment_id)
-  console.log("weight : ", order.items[0].variant?.product?.weight || '')
-  console.log("hs_code : ", order.items[0].variant?.product?.hs_code || '')
+  console.log("order data here ", order)
+  console.log("weight : ", order.items[0].product?.weight || '')
+  console.log("hs_code : ", order.items[0].product?.hs_code || '')
 
   try {
     const payload = {
@@ -473,12 +524,12 @@ export async function sendOrderToSendCloud(order: any) {
           title: item.title,
           quantity: item.quantity,
           unit_price: item.unit_price,
-          weight: item.variant?.product?.weight * 1000 || '',
-          hs_tariff_number: item.variant?.product?.hs_code || '',
+          weight: item.product?.weight || '',
+          hs_tariff_number: item.product?.hs_code || '',
           variant: {
             sku: item.variant?.sku || '',
             product: {
-              title: item.variant?.product?.title || '',
+              title: item.product?.title || '',
             }
           }
         })) || [],
@@ -495,36 +546,15 @@ export async function sendOrderToSendCloud(order: any) {
       }
     };
 
-    console.log("Voici le payload : ", payload.order.shipping_methods)
+    console.log("Voici le payload : ", payload.order)
 
-    const loginRes = await fetch(`${BACKEND_URL}/auth/customer/emailpass`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
-    const loginData = await loginRes.json()
-    if (!loginRes.ok) throw new Error(loginData.message || 'Login failed')
-
-    const jwtToken = loginData.token
-
-    const sessionRes = await fetch(`${BACKEND_URL}/auth/session`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${jwtToken}` },
-      credentials: 'include',
-    })
-
-    const rawSetCookie = sessionRes.headers.get('set-cookie')
-    if (!rawSetCookie) throw new Error('No session cookie received')
-
-    const sidMatch = rawSetCookie.match(/connect\.sid=([^;]+)/)
-    if (!sidMatch) throw new Error('Session ID not found')
-    const sessionId = sidMatch[1]
+    const sessionId = getSessionId(email, password)
 
     const labelRes = await fetch(`${BACKEND_URL}/store/sendscloud/label/${order.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-publishable-api-key': PUBLISHABLE_API_KEY,
+        'x-publishable-api-key': process.env.PUBLISHABLE_API_KEY || PUBLISHABLE_API_KEY,
         Cookie: `connect.sid=${sessionId}`,
       },
       body: JSON.stringify(payload),
@@ -538,9 +568,36 @@ export async function sendOrderToSendCloud(order: any) {
       console.error('❌ SendCloud Error:', labelData.message)
     } else {
       console.log('✅ SendCloud Label Created:', labelData)
+      return labelData
     }
   } catch (err: any) {
     console.error('❌ Failed to send order to SendCloud:', err.message)
+  }
+}
+
+export async function getTrackingLinkOrder(labelId: string) {
+  const sessionId = getSessionId(email, password)
+
+  console.log("J'ai bien le labelId avant l'envoi à Sendcloud : ", labelId)
+
+  const labelRes = await fetch(`${BACKEND_URL}/store/sendscloud/trackinglink/${labelId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-publishable-api-key': process.env.PUBLISHABLE_API_KEY || PUBLISHABLE_API_KEY,
+      Cookie: `connect.sid=${sessionId}`,
+    },
+  })
+
+  console.log("Label Res pour le tracking link : ", labelRes)
+
+  const labelData = await labelRes.json()
+
+  if (!labelRes.ok) {
+    console.error('❌ SendCloud Error:', labelData.message)
+  } else {
+    console.log('✅ SendCloud Tracking Link :', labelData.trackingLink)
+    return labelData.trackingLink
   }
 }
 
@@ -589,4 +646,51 @@ export async function listCartOptions() {
     headers,
     cache: "force-cache",
   })
+}
+
+// À ajouter dans votre fichier @lib/data/cart
+
+export const updateCartPaymentMethod = async (cartId: string, paymentMethod: string) => {
+  try {
+    // Utiliser directement le client Medusa
+    const response = await sdk.store.cart.update(cartId, {
+      metadata: {
+        selected_payment_method: paymentMethod,
+      },
+    })
+
+    return response.cart
+  } catch (error) {
+    console.error('Error updating payment method:', error)
+    throw error
+  }
+}
+
+
+// Ou si vous n'avez pas de client Medusa configuré, utilisez fetch directement
+export const updateCartPaymentMethodFetch = async (cartId: string, paymentMethod: string) => {
+  try {
+    const medusaUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
+    const response = await fetch(`${medusaUrl}/store/carts/${cartId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        metadata: {
+          selected_payment_method: paymentMethod,
+        },
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(`Failed to update payment method: ${response.status} ${response.statusText}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Error updating payment method:', error)
+    throw error
+  }
 }

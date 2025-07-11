@@ -30,7 +30,7 @@ const Payment = ({
   const pathname = usePathname()
 
   const isOpen = searchParams.get("step") === "payment"
-
+  
   const stripeReady = useContext(StripeContext)
 
   const activeSession = cart.payment_collection?.payment_sessions?.find(

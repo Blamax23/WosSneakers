@@ -10,6 +10,10 @@ type CarouselProps = {
   region: HttpTypes.StoreRegion
 }
 
+type VariantWithPrices = HttpTypes.StoreProductVariant & {
+  prices: { amount: number }[]
+}
+
 const Carousel = ({ products, region }: CarouselProps) => {
   const [sliderRef] = useKeenSlider<HTMLDivElement>({
     loop: false,
@@ -26,11 +30,34 @@ const Carousel = ({ products, region }: CarouselProps) => {
 
   return (
     <div ref={sliderRef} className="keen-slider">
-      {products.map((product) => (
-        <div className="keen-slider__slide" key={product.id}>
-          <ProductPreview product={product} region={region} isFeatured />
-        </div>
-      ))}
+      {products.map((product) => {
+
+        console.log("VOici le produit à chaque fois : ", product)
+        const cheapestVariant = (product.variants ?? [])
+          .map(v => v as VariantWithPrices & { calculated_price?: { calculated_amount: number } })
+          .reduce<{ variant: VariantWithPrices | null; minAmount: number }>(
+            (acc, variant) => {
+              const price = variant.calculated_price?.calculated_amount ?? Infinity
+              if (price < acc.minAmount) {
+                return { variant, minAmount: price }
+              }
+              return acc
+            },
+            { variant: null, minAmount: Infinity }
+          )
+
+        console.log("Voici le cheapest Variant : ", cheapestVariant)
+
+        if (cheapestVariant.variant) {
+          // cheapestVariant.variant est celui avec le prix le plus bas
+          console.log("Variant avec le prix minimum", cheapestVariant.variant)
+        }
+        return (
+          <div className="keen-slider__slide" key={product.id}>
+            <ProductPreview product={{ ...product, cheapestVariant }} region={region} isFeatured />
+          </div>
+        )
+      })}
     </div>
   )
 }

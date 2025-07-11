@@ -2,7 +2,7 @@
 
 import { sdk } from "@lib/config"
 import { sortProducts } from "@lib/util/sort-products"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes, StoreRegion } from "@medusajs/types"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
@@ -100,7 +100,7 @@ export const listProducts = async ({
   }
 }
 
-export const listTrendingProducts = async () => {
+export const listTrendingProducts = async (region: StoreRegion) => {
   const headers = {
     ...(await getAuthHeaders()),
   }
@@ -108,6 +108,8 @@ export const listTrendingProducts = async () => {
   const next = {
     ...(await getCacheOptions("products")),
   }
+
+  console.log("Voici la region : ", region.id)
 
   // Utiliser le SDK pour récupérer les produits
   try {
@@ -117,7 +119,8 @@ export const listTrendingProducts = async () => {
         {
           method: "GET",
           query: {
-            fields: "*metadata", // On récupère uniquement les métadonnées
+            fields: "*variants,*variants.prices,*metadata,*calculated_price",
+            region_id: region.id
           },
           headers,
           next,
@@ -126,6 +129,8 @@ export const listTrendingProducts = async () => {
       ),
       8000
     );
+
+    console.log("Produits à la fraiche, fraichement récupérés : ", result.products)
     const trendingProducts = result.products.filter(
       (product) => product.metadata?.Tendance === true
     );
@@ -145,17 +150,25 @@ export const listProductsWithSort = async ({
   queryParams,
   sortBy = "created_at",
   countryCode,
+  price
 }: {
   page?: number
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
   sortBy?: SortOptions
   countryCode: string
+  price?: string
 }): Promise<{
   response: { products: HttpTypes.StoreProduct[]; count: number }
   nextPage: number | null
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
 }> => {
   const limit = queryParams?.limit || 12
+
+  let [priceMin, priceMax] = price?.split("-").map(Number) || [null, null]
+
+  if (Number.isNaN(priceMin)) priceMin = null
+  if (Number.isNaN(priceMax)) priceMax = null
+
 
   const {
     response: { products, count },
@@ -168,7 +181,23 @@ export const listProductsWithSort = async ({
     countryCode,
   })
 
-  const sortedProducts = sortProducts(products, sortBy)
+  const filteredProducts = products.filter(product => {
+    // calcule le prix minimum variant
+    const minVariantPrice = Math.min(
+      ...(product.variants?.map(v => v.calculated_price?.original_amount ?? Infinity) ?? [])
+    )
+
+    console.log(Math.min(
+      ...(product.variants?.map(v => v.calculated_price?.original_amount ?? Infinity) ?? [])
+    ))
+
+    return (
+      (priceMin === null || minVariantPrice >= priceMin) &&
+      (priceMax === null || minVariantPrice <= priceMax)
+    )
+  })
+
+  const sortedProducts = sortProducts(filteredProducts, sortBy)
 
   const pageParam = (page - 1) * limit
 

@@ -29,6 +29,92 @@ export const retrieveOrder = async (id: string) => {
     .catch((err) => medusaError(err))
 }
 
+export const retrieveOrderMetadata = async (id: string) => {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  const next = {
+    ...(await getCacheOptions("orders")),
+  }
+
+  return sdk.client
+    .fetch<HttpTypes.StoreOrderResponse>(`/store/orders/${id}`, {
+      method: "GET",
+      query: {
+        fields:
+          "metadata",
+      },
+      headers,
+      next,
+      cache: "force-cache",
+    })
+    .then(({ order }) => order)
+    .catch((err) => medusaError(err))
+}
+
+// export const updateOrder = async (order : HttpTypes.StoreOrder) => {
+//   const headers = {
+//     ...(await getAuthHeaders()),
+//   }
+
+//   const next = {
+//     ...(await getCacheOptions("orders")),
+//   }
+
+
+
+
+// }
+
+export const updateOrderTracking = async (cartId: string, paymentMethod: string) => {
+  try {
+    // Utiliser directement le client Medusa
+    const response = await sdk.store.cart.update(cartId, {
+      metadata: {
+        selected_payment_method: paymentMethod,
+      },
+    })
+
+    return response.cart
+  } catch (error) {
+    console.error('Error updating payment method:', error)
+    throw error
+  }
+}
+
+export const listReturnReasons = async () => {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  const next = {
+    ...(await getCacheOptions("orders")),
+  }
+
+  // const loginRes = await sdk.auth.login("user", "emailpass", {
+  //   email: "auth@auth.com",
+  //   password: "secret",
+  // })
+
+  // const token = loginRes.access_token
+
+  // const headers = {
+  //   Authorization: `Bearer ${token}`,
+  // }
+
+  let return_reasons = []
+
+  fetch(`${process.env.MEDUSA_BACKEND_URL}/store/return-reasons`)
+    .then(res => res.json())
+    .then(data => {
+      console.log(data.return_reasons);
+      return_reasons = data.return_reasons
+    });
+
+  return sdk.admin.returnReason.list({}, headers)
+}
+
 export const listOrders = async (
   limit: number = 10,
   offset: number = 0,

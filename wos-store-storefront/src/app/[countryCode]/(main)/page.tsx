@@ -27,18 +27,28 @@ export default async function Home(props: {
     fields: "id, handle, title, metadata",
   })
 
-  const trendingProducts = await listTrendingProducts()
+  let trendingProducts = null
+  if (region!) {
+    trendingProducts = await listTrendingProducts(region)
+  }
+
+  console.log("Voici les trendingProducts : ", trendingProducts)
 
   if (!collections || !region) {
     return null
   }
+
+
 
   return (
     <>
       <Hero />
       <div className="py-12">
         <ul className="flex flex-col gap-x-6">
-          <TrendingProducts products={trendingProducts} region={region} />
+          {trendingProducts && (
+            <TrendingProducts products={trendingProducts} region={region} />
+          )}
+
           <FeaturedProducts collections={collections} region={region} />
         </ul>
         <Atouts></Atouts>

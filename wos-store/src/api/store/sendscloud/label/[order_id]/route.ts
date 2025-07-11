@@ -1,7 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
 interface OrderRequestBody {
-  order: any; 
+  order: any;
 }
 
 export async function POST(req: MedusaRequest<OrderRequestBody>, res: MedusaResponse) {
@@ -13,7 +13,7 @@ export async function POST(req: MedusaRequest<OrderRequestBody>, res: MedusaResp
   }
 
   console.log(`Creating label for order_id: ${order_id}`)
-  
+
   const sendcloudService = req.scope.resolve("sendcloudService") as {
     createLabelForOrder: (order: any) => Promise<any>
   }

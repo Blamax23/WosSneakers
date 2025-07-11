@@ -1,3 +1,5 @@
+"use client"
+
 import { Text } from "@medusajs/ui"
 import { listProducts } from "@lib/data/products"
 import { getProductPrice } from "@lib/util/get-product-price"
@@ -11,11 +13,13 @@ export default function ProductPreview({
   isFeatured,
   region,
 }: {
-  product: HttpTypes.StoreProduct & { cheapestPrice?: any }
+  product: HttpTypes.StoreProduct & { cheapestVariant?: any }
   isFeatured?: boolean
   region: HttpTypes.StoreRegion
 }) {
-  const { cheapestPrice } = product
+  const { cheapestVariant } = product
+
+  console.log("Voici ce que je mets dans cheapestPrice : ", cheapestVariant)
 
   return (
     <LocalizedClientLink href={`/products/${product.handle}`} className="group">
@@ -30,8 +34,8 @@ export default function ProductPreview({
           <Text className="text-ui-fg-subtle" data-testid="product-title">
             {product.title}
           </Text>
-          <div className="flex items-center gap-x-2">
-            {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
+          <div className="flex flex-col items-start">
+            {cheapestVariant && <PreviewPrice price={cheapestVariant.variant.calculated_price} />}
           </div>
         </div>
       </div>

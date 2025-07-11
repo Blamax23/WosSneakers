@@ -97,10 +97,10 @@ class SendcloudService {
   }
 
   async createParcel(order: any): Promise<Parcel> {
-    console.log("📦 Creating parcel for order:", order.shipping_methods[0].shipping_option);
+    console.log("📦 Creating parcel for order:", order.items);
 
     // Validate and format country code
-    const countryCode = order.shipping_address.country_code?.toUpperCase() || '';
+    const countryCode = order.shipping_address.country_code?.toUpperCase() || 'FR';
     if (!countryCode || countryCode.length !== 2) {
       throw new Error(`Invalid country code: ${order.shipping_address.country_code}`);
     }
@@ -115,19 +115,19 @@ class SendcloudService {
         country: countryCode,
         email: order.email,
         phone: order.shipping_address.phone || '',
-        weight: (order.items?.reduce((s: number, itm: any) => s + (itm.weight || 0), 0) / 1000).toString() || "2.0",
+        weight: (order.items?.reduce((s: number, itm: any) => s + (itm.variant.weight || 0), 0)).toString() || "2.0",
         order_number: order.id,
         company_name: order.shipping_address.company || '',
         address_2: order.shipping_address.address_2 || '',
         shipment: {
-          id: order.shipping_methods[0].shipping_option.id
+          id: order.shipping_methods[0].data.shipment_id
         },
         parcel_items: order.items?.map((item: any) => ({
           description: item.title,
-          quantity: item.quantity,
-          weight: item.weight, // grammes
+          quantity: item.detail.quantity,
+          weight: item.variant.weight, // grammes
           value: item.unit_price,
-          hs_code: item.hs_tariff_number, // ou une valeur réelle si tu l’as
+          hs_code: item.variant.product.hs_code, // ou une valeur réelle si tu l’as
           origin_country: (order.shipping_address?.country_code || 'fr').toUpperCase(),
           sku: item.variant?.sku || ''
         }))
@@ -186,9 +186,10 @@ class SendcloudService {
   }
 
   async getTrackingLink(labelId: string): Promise<string> {
+
     const data = await this.makeRequest({
       method: 'get',
-      url: `/labels/${labelId}/tracking`
+      url: `/tracking/{labelId}`
     })
 
     return data.tracking_url || ''

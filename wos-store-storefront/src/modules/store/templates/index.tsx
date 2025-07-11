@@ -11,14 +11,18 @@ const StoreTemplate = ({
   collection_id,
   page,
   countryCode,
+  price
 }: {
   sortBy?: SortOptions
   collection_id?: string
   page?: string
   countryCode: string
+  price?: string
 }) => {
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
+
+  console.log("Price dans le StoreTemplate", price)
 
   return (
     <div
@@ -36,6 +40,7 @@ const StoreTemplate = ({
             collectionId={collection_id}
             page={pageNumber}
             countryCode={countryCode}
+            price={price}
           />
         </Suspense>
       </div>

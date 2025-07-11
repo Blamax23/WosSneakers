@@ -3,7 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useState } from "react"
 import SortProducts, { SortOptions } from "./sort-products"
-import {GetCollectionsChoices, PriceFilter, ColorFilter} from "./filters-products"
+import { GetCollectionsChoices, PriceFilter } from "./filters-products"
 
 type RefinementListProps = {
   sortBy: SortOptions
@@ -14,12 +14,12 @@ type RefinementListProps = {
   'data-testid'?: string
 }
 
-const RefinementList = ({ 
-  sortBy, 
-  collections, 
+const RefinementList = ({
+  sortBy,
+  collections,
   priceRange,
   colors,
-  'data-testid': dataTestId 
+  'data-testid': dataTestId
 }: RefinementListProps) => {
   const router = useRouter()
   const pathname = usePathname()
@@ -67,7 +67,7 @@ const RefinementList = ({
       <GetCollectionsChoices collectionsChoisies={selectedCollections.join(",")} />
 
       {/* Section du filtre de prix */}
-      <PriceFilter 
+      <PriceFilter
         minPrice={minPrice}
         maxPrice={maxPrice}
         onPriceChange={(min, max) => {
@@ -75,18 +75,6 @@ const RefinementList = ({
             setQueryParams('price', `${min}-${max}`)
           } else {
             removeQueryParam('price')
-          }
-        }}
-      />
-
-      {/* Section du filtre de couleur */}
-      <ColorFilter 
-        selectedColors={selectedColors}
-        onColorChange={(newColors) => {
-          if (newColors.length > 0) {
-            setQueryParams('colors', newColors.join(","))
-          } else {
-            removeQueryParam('colors')
           }
         }}
       />

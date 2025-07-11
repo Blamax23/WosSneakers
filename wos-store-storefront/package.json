@@ -38,6 +38,7 @@
     "server-only": "^0.0.1",
     "sib-api-v3-sdk": "^8.5.0",
     "tailwindcss-radix": "^2.8.0",
+    "three": "^0.178.0",
     "webpack": "^5"
   },
   "devDependencies": {
@@ -51,6 +52,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/react-instantsearch-dom": "^6.12.3",
+    "@types/three": "^0.178.1",
     "ansi-colors": "^4.1.3",
     "autoprefixer": "^10.4.2",
     "babel-loader": "^8.2.3",

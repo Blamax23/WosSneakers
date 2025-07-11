@@ -17,6 +17,8 @@ export async function POST(
 
     const { query } = req.validatedBody
 
+    console.log("La query : ", query)
+
     const results = await algoliaModuleService.search(
         query as string 
     )

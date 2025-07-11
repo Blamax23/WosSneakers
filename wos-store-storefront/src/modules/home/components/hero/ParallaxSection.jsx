@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
+import SneakerScene from '../sneakerScene'
 
 const ParallaxSection = () => {
   const parallaxRef = useRef(null)
@@ -22,12 +23,20 @@ const ParallaxSection = () => {
 
   return (
     <div className="h-[90vh] w-full relative bg-black overflow-hidden flex items-center justify-center">
+      <div className="absolute left-0 h-full w-[50vw] z-10">
+        <SneakerScene modelName="sb2-light" />
+      </div>
+
       <img
         ref={parallaxRef}
         src="/WosLogos/logoWosArgent.png"
         alt="Logo WOS"
-        className="w-[80vw] max-w-[600px] transition-transform duration-100 ease-out"
+        className="w-[80vw] max-w-[600px] transition-transform duration-100 ease-out z-20"
       />
+
+      <div className="absolute right-0 h-full w-[50vw] z-10">
+        <SneakerScene modelName="af1-light" />
+      </div>
     </div>
   )
 }

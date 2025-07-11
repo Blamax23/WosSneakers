@@ -1,6 +1,6 @@
 "use client"
 
-import { clx } from "@medusajs/ui"
+import { Button, clx } from "@medusajs/ui"
 import { ArrowRightOnRectangle } from "@medusajs/icons"
 import { useParams, usePathname } from "next/navigation"
 
@@ -89,18 +89,23 @@ const AccountNav = ({
                   </LocalizedClientLink>
                 </li>
                 <li>
-                  <button
-                    type="button"
-                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8 w-full"
-                    onClick={handleLogout}
+                  <Button
+                    asChild
+                    className="w-full px-8 border-b border-gray-200"
                     data-testid="logout-button"
                   >
-                    <div className="flex items-center gap-x-2">
-                      <ArrowRightOnRectangle />
-                      <span>Se déconnecter</span>
-                    </div>
-                    <ChevronDown className="transform -rotate-90" />
-                  </button>
+                    <button
+                      type="button"
+                      className="flex items-center justify-between py-4 w-full"
+                      onClick={handleLogout}
+                    >
+                      <div className="flex items-center gap-x-2">
+                        <ArrowRightOnRectangle />
+                        Se déconnecter
+                      </div>
+                      <ChevronDown className="transform -rotate-90" />
+                    </button>
+                  </Button>
                 </li>
               </ul>
             </div>
@@ -151,13 +156,13 @@ const AccountNav = ({
                 </AccountNavLink>
               </li>
               <li className="text-grey-700">
-                <button
+                <Button
                   type="button"
                   onClick={handleLogout}
                   data-testid="logout-button"
                 >
                   Se déconnecter
-                </button>
+                </Button>
               </li>
             </ul>
           </div>

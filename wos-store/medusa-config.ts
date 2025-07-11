@@ -16,6 +16,16 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     },
   },
+  admin: {
+    vite: () => {
+      return {
+        server: {
+          allowedHosts: [".ngrok-free.app"],
+        },
+      }
+    },
+  },
+
   modules: [
     {
       resolve: `./src/modules/sendcloud`,

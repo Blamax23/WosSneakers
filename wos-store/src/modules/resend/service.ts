@@ -94,13 +94,13 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
         }
         switch(template) {
             case Templates.ORDER_PLACED:
-                return "Order Confirmation"
+                return "Nous avons bien reçu ta commande !"
             case Templates.ORDER_COMPLETED:
-                return "Order Completed"
+                return "Ta commande est arrivée chez toi !"
             case Templates.CUSTOMER_CREATED:
-                return "Bienvenue  chez WOS Sneakers"
+                return "Bienvenue chez WOS Sneakers !"
             default:
-                return "New Email"
+                return "Un email de WOS Sneakers est arrivé"
         }
     }
     

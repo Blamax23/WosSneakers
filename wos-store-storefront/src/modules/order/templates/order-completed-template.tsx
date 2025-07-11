@@ -17,9 +17,19 @@ type OrderCompletedTemplateProps = {
 export default async function OrderCompletedTemplate({
   order,
 }: OrderCompletedTemplateProps) {
+  console.log("Order dans le template de l'order completed : ", order)
+  console.log("Order type:", typeof order)
+  console.log("Order is Promise?", order instanceof Promise)
+  console.log("Order keys:", Object.keys(order || {}))
   const cookies = await nextCookies()
 
   const isOnboarding = cookies.get("_medusa_onboarding")?.value === "true"
+
+  if (!order) {
+    return <div>Loading...</div>
+  }
+
+  console.log("Order dans le template de l'order completed : ", order)
 
   return (
     <div className="py-6 min-h-[calc(100vh-64px)]">

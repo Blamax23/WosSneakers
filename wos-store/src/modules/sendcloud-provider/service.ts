@@ -1,6 +1,6 @@
 import { AbstractFulfillmentProviderService } from "@medusajs/framework/utils"
 import { Lifetime } from "awilix"
-import { Logger } from "@medusajs/framework/types"
+import { CreateFulfillmentResult, FulfillmentDTO, FulfillmentItemDTO, FulfillmentOrderDTO, Logger } from "@medusajs/framework/types"
 import SendcloudService from "../sendcloud/service"
 
 type InjectedDependencies = {
@@ -9,6 +9,11 @@ type InjectedDependencies = {
 
 type Options = {
   apiKey: string
+}
+
+type OrderItemWithVariant = {
+  variant: any // ou ProductVariant si t’as le type
+  detail?: any
 }
 
 
@@ -70,6 +75,35 @@ class SendcloudProviderService extends AbstractFulfillmentProviderService {
           sendcloud_method_id: method.id,
         },
       }))
+  }
+
+
+  async createFulfillment(
+    data: Record<string, unknown>,
+    items: Partial<Omit<FulfillmentItemDTO, "fulfillment">>[],
+    order: Partial<FulfillmentOrderDTO> | undefined,
+    fulfillment: Partial<Omit<FulfillmentDTO, "provider_id" | "data" | "items">>
+  ): Promise<CreateFulfillmentResult> {
+
+    console.log("Voici le data que je reçois", data)
+    console.log("Voici les items que je reçois", items)
+    console.log("Voici l'order que je reçois", order)
+    console.log("Voici le fulfillment que je reçois", fulfillment)
+    // Exemple d'appel à un service externe
+    const { parcel, label } = await this.sendcloudService_.createLabelForOrder(order)
+
+    console.log("Voici la parcel créé ", parcel)
+    console.log("Voici le label créé ", label)
+
+    return {
+      data: {
+        ...(fulfillment as object || {}),
+        ...parcel
+      },
+      labels: []
+      // Optionnel : labels si tu veux ajouter des étiquettes de suivi
+      // labels: [...]
+    };
   }
 
 
