@@ -7,6 +7,7 @@ import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Thumbnail from "../thumbnail"
 import PreviewPrice from "./price"
+import price from "./price"
 
 export default function ProductPreview({
   product,
@@ -18,8 +19,7 @@ export default function ProductPreview({
   region: HttpTypes.StoreRegion
 }) {
   const { cheapestVariant } = product
-
-  console.log("Voici ce que je mets dans cheapestPrice : ", cheapestVariant)
+  const price = cheapestVariant?.variant?.calculated_price
 
   return (
     <LocalizedClientLink href={`/products/${product.handle}`} className="group">
@@ -35,8 +35,8 @@ export default function ProductPreview({
             {product.title}
           </Text>
           <div className="flex flex-col items-start">
-            {cheapestVariant && <PreviewPrice price={cheapestVariant.variant.calculated_price} />}
-          </div>
+            {price && <PreviewPrice price={price} />}
+        </div>
         </div>
       </div>
     </LocalizedClientLink>

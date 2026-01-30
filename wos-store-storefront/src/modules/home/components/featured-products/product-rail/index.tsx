@@ -10,7 +10,6 @@ import "keen-slider/keen-slider.min.css"
 import Carousel from "./carousel"
 
 export default async function ProductRail({ collection, region }: { collection: HttpTypes.StoreCollection, region: HttpTypes.StoreRegion }) {
-  console.log(collection.metadata?.home)
   if (collection.metadata?.home !== true) return null
 
   const {
@@ -42,7 +41,7 @@ export default async function ProductRail({ collection, region }: { collection: 
       {isCarousel ? (
         <Carousel products={pricedProducts.slice(0, 12)} region={region} />
       ) : (
-        <ul className="grid grid-cols-2 small:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-24 small:gap-y-36">
+        <ul className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-12 sm:gap-y-16 lg:gap-y-24">
           {pricedProducts.map((product) => (
             <li key={product.id}>
               <ProductPreview product={product} region={region} isFeatured />

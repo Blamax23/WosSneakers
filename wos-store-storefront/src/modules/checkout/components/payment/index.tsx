@@ -10,7 +10,7 @@ import Divider from "@modules/common/components/divider"
 import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js"
 import { StripePaymentElementChangeEvent } from "@stripe/stripe-js"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useContext, useEffect, useState } from "react"
+import { useCallback, useContext, useEffect, useRef, useState } from "react"
 
 const Payment = ({
   cart,
@@ -33,14 +33,25 @@ const Payment = ({
 
   const stripeReady = useContext(StripeContext)
 
-  const activeSession = cart.payment_collection?.payment_sessions?.find(
-    (paymentSession: any) => paymentSession.status === "pending"
+  // Medusa sessions don't always use the same status value.
+  // For Stripe, the reliable signal is data.client_secret.
+  const stripeSession = cart.payment_collection?.payment_sessions?.find(
+    (paymentSession: any) =>
+      paymentSession?.provider_id?.toLowerCase?.().includes("stripe")
   )
+
+  const activeSession =
+    stripeSession && (stripeSession as any)?.data?.client_secret
+      ? stripeSession
+      : null
+
+  const hasStripeSession = !!stripeSession
   const paidByGiftcard =
     cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
 
   const paymentReady =
-    (activeSession && cart?.shipping_methods.length !== 0) || paidByGiftcard
+    (activeSession && (cart?.shipping_methods?.length ?? 0) !== 0) ||
+    paidByGiftcard
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -79,29 +90,26 @@ const Payment = ({
 
     try {
       if (!stripe || !elements) {
-        setError("Payment processing not ready. Please try again.")
+        setError("Le paiement n'est pas prêt. Veuillez réessayer dans un instant.")
         return
       }
 
       await elements.submit().catch((err) => {
         console.error(err)
-        setError(err.message || "An error occurred with the payment")
+        setError(err.message || "Une erreur est survenue avec le paiement.")
         return
       })
 
       // Sauvegarder la méthode de paiement dans le panier avant de continuer
       if (selectedPaymentMethod) {
         try {
-          console.log("On modifie bien le panier")
           await updateCartPaymentMethod(cart.id, selectedPaymentMethod)
         } catch (err) {
           console.error("Failed to update payment method in cart:", err)
-          setError("Failed to save payment method. Please try again.")
+          setError("Impossible d'enregistrer le moyen de paiement. Veuillez réessayer.")
           return
         }
       }
-
-      console.log("Voici le panier après changement : ", cart)
 
       router.push(pathname + "?" + createQueryString("step", "review"), {
         scroll: false,
@@ -113,33 +121,72 @@ const Payment = ({
     }
   }
 
+  const initRuns = useRef(0)
+
   const initStripe = useCallback(async () => {
-    if (isInitializingStripe || activeSession) return
+    // We only want to init once per open step (or retry a couple of times)
+    if (isInitializingStripe || activeSession || paidByGiftcard) return
+
+    // Stripe session already exists but isn't hydrated yet → just refresh/poll
+    if (hasStripeSession && !activeSession) {
+      setIsInitializingStripe(true)
+      for (let i = 0; i < 4; i++) {
+        await new Promise((r) => setTimeout(r, 300 + i * 250))
+        router.refresh()
+      }
+      setIsInitializingStripe(false)
+      return
+    }
+
+    // Stripe init requires at least one shipping method on many setups
+    if ((cart?.shipping_methods?.length ?? 0) === 0) return
+
+    initRuns.current += 1
+    if (initRuns.current > 3) return
 
     setIsInitializingStripe(true)
+    setError(null)
+
+    const providerId = "pp_stripe_stripe"
+
     try {
-      console.log("Je suis juste avant l'initSession", cart)
       await initiatePaymentSession(cart, {
-        provider_id: "pp_stripe_stripe",
+        provider_id: providerId,
       })
 
-      // 💡 Refetch du cart ici pour récupérer le payment_session à jour
-      router.refresh() // ← ça va relancer le fetch côté server dans Next.js
-    } catch (err) {
+      // Give the backend a short moment to persist & hydrate relations
+      await new Promise((r) => setTimeout(r, 250))
+      router.refresh()
+    } catch (err: any) {
+      const msg = err?.message ? String(err.message) : ""
       console.error("Failed to initialize Stripe session:", err)
-      setError("Failed to initialize payment. Please try again.")
+
+      // If it looks like a harmless conflict (session already exists), refresh and retry.
+      if (/already|exists|initiated|conflict/i.test(msg)) {
+        await new Promise((r) => setTimeout(r, 350))
+        router.refresh()
+        return
+      }
+
+      setError("Impossible d'initialiser le paiement. Veuillez réessayer.")
     } finally {
       setIsInitializingStripe(false)
     }
-  }, [cart, isInitializingStripe, activeSession, router])
+  }, [cart, isInitializingStripe, activeSession, router, paidByGiftcard, hasStripeSession])
 
 
   // Effet pour initialiser Stripe - CORRIGÉ
   useEffect(() => {
-    if (!activeSession && isOpen && cart?.id) {
+    if (!isOpen || !cart?.id || paidByGiftcard) return
+
+    // Wait for delivery step to be saved (shipping methods present)
+    if ((cart?.shipping_methods?.length ?? 0) === 0) return
+
+    // If we don't have a usable Stripe session yet, try to ensure it.
+    if (!activeSession) {
       initStripe()
     }
-  }, [cart?.id, isOpen, activeSession, initStripe])
+  }, [cart?.id, cart?.shipping_methods?.length, isOpen, activeSession, initStripe, paidByGiftcard])
 
 
   useEffect(() => {
@@ -161,11 +208,25 @@ const Payment = ({
   }, [cart?.metadata?.selected_payment_method])
 
   // Condition d'affichage plus stricte
-  const shouldShowPaymentElement = !paidByGiftcard &&
-    availablePaymentMethods?.length > 0 &&
+  const shouldShowPaymentElement =
+    !paidByGiftcard &&
+    (availablePaymentMethods?.length ?? 0) > 0 &&
     stripeReady &&
-    activeSession &&
+    !!activeSession &&
     !isInitializingStripe
+
+  
+  console.log("STRIPE DEBUG", {
+    paidByGiftcard,
+    availablePaymentMethods: availablePaymentMethods?.length,
+    stripeReady,
+    activeSession,
+    isInitializingStripe,
+    hasStripeSession,
+    shipping: cart?.shipping_methods?.length,
+    payment_sessions: cart?.payment_collection?.payment_sessions,
+  })
+
 
   return (
     <div className="bg-white">
@@ -180,7 +241,7 @@ const Payment = ({
             }
           )}
         >
-          Payment
+          Paiement
           {!isOpen && paymentReady && <CheckCircleSolid />}
         </Heading>
         {!isOpen && paymentReady && (
@@ -190,7 +251,7 @@ const Payment = ({
               className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
               data-testid="edit-payment-button"
             >
-              Edit
+              Modifier
             </button>
           </Text>
         )}
@@ -218,13 +279,13 @@ const Payment = ({
           {paidByGiftcard && (
             <div className="flex flex-col w-1/3">
               <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                Payment method
+                Moyen de paiement
               </Text>
               <Text
                 className="txt-medium text-ui-fg-subtle"
                 data-testid="payment-method-summary"
               >
-                Gift card
+                Carte cadeau
               </Text>
             </div>
           )}
@@ -240,15 +301,12 @@ const Payment = ({
             onClick={handleSubmit}
             isLoading={isLoading}
             disabled={
-              !stripeComplete ||
-              !stripe ||
-              !elements ||
-              (!selectedPaymentMethod && !paidByGiftcard) ||
+              (!paidByGiftcard && (!stripeComplete || !stripe || !elements)) ||
               isInitializingStripe
             }
             data-testid="submit-payment-button"
           >
-            Continue to review
+            Continuer
           </Button>
         </div>
 
@@ -257,7 +315,7 @@ const Payment = ({
             <div className="flex items-start gap-x-1 w-full">
               <div className="flex flex-col w-1/3">
                 <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                  Payment method
+                  Moyen de paiement
                 </Text>
                 <Text
                   className="txt-medium text-ui-fg-subtle"
@@ -269,7 +327,7 @@ const Payment = ({
               </div>
               <div className="flex flex-col w-1/3">
                 <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                  Payment details
+                  Détails de paiement
                 </Text>
                 <div
                   className="flex gap-2 txt-medium text-ui-fg-subtle items-center"
@@ -280,20 +338,20 @@ const Payment = ({
                       <CreditCard />
                     )}
                   </Container>
-                  <Text>Another step will appear</Text>
+                  <Text>Les détails apparaîtront après validation</Text>
                 </div>
               </div>
             </div>
           ) : paidByGiftcard ? (
             <div className="flex flex-col w-1/3">
               <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                Payment method
+                Moyen de paiement
               </Text>
               <Text
                 className="txt-medium text-ui-fg-subtle"
                 data-testid="payment-method-summary"
               >
-                Gift card
+                Carte cadeau
               </Text>
             </div>
           ) : null}

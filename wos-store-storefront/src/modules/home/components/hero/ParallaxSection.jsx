@@ -5,6 +5,7 @@ import SneakerScene from '../sneakerScene'
 
 const ParallaxSection = () => {
   const parallaxRef = useRef(null)
+  const backgroundRef = useRef(null)
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -22,20 +23,39 @@ const ParallaxSection = () => {
   }, [])
 
   return (
-    <div className="h-[90vh] w-full relative bg-black overflow-hidden flex items-center justify-center">
-      <div className="absolute left-0 h-full w-[50vw] z-10">
-        <SneakerScene modelName="sb2-light" />
-      </div>
-
-      <img
-        ref={parallaxRef}
-        src="/WosLogos/logoWosArgent.png"
-        alt="Logo WOS"
-        className="w-[80vw] max-w-[600px] transition-transform duration-100 ease-out z-20"
-      />
-
-      <div className="absolute right-0 h-full w-[50vw] z-10">
-        <SneakerScene modelName="af1-light" />
+    <div 
+      ref={backgroundRef}
+      className="h-[90vh] w-full relative bg-black overflow-hidden flex items-center justify-center"
+      style={{willChange: 'transform'}}
+    >
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1920 1080" fill="none" preserveAspectRatio="xMidYMid slice">
+        {Array.from({ length: 300 }, (_, i) => {
+            // Utiliser l'index pour générer des positions fixes
+            const x = (i * 137.5 + 123) % 1920
+            const y = (i * 241.3 + 456) % 1080
+            const size = ((i * 17) % 10) / 10 + 0.5
+            const opacity = ((i * 23) % 40) / 100 + 0.1
+            const shadowOpacity = opacity * 0.5
+            const delay = (i * 50) % 5000
+            return (
+              <circle
+                key={`bg-star-${i}`}
+                cx={x}
+                cy={y}
+                r={size}
+                fill="white"
+                opacity={opacity}
+                filter={`drop-shadow(0 0 ${size / 2}px rgba(255, 255, 255, ${shadowOpacity}))`}
+                style={{
+                  animation: `twinkle 5s infinite`,
+                  animationDelay: `${delay}ms`,
+                }}
+              />
+            )
+          })}
+      </svg>
+      <div className="absolute inset-0 z-10 flex items-center justify-center">
+        <SneakerScene modelName="wos" />
       </div>
     </div>
   )

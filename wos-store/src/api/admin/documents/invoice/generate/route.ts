@@ -43,7 +43,6 @@ export const GET = async (
   })
   try {
     if (lastOrders && lastOrders.length) {
-      console.log("🔥 Order récupérée pour la facture :", JSON.stringify(lastOrders[0], null, 2))
         const rawRequest = req as unknown as any;
         const templateKind = rawRequest.query.template;
         const result = await documentsModuleService.generateTestInvoice(lastOrders[0], templateKind as InvoiceTemplateKind)

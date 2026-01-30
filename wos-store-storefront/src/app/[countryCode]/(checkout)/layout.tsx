@@ -1,6 +1,7 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import ChevronDown from "@modules/common/icons/chevron-down"
 import MedusaCTA from "@modules/layout/components/medusa-cta"
+import Image from "next/image"
 
 export default function CheckoutLayout({
   children,
@@ -29,7 +30,7 @@ export default function CheckoutLayout({
             className="txt-compact-xlarge-plus text-ui-fg-subtle hover:text-ui-fg-base uppercase"
             data-testid="store-link"
           >
-            WOS Sneakers
+            <Image className="w-16 h-auto" src="/WosLogos/logoWosBlack.png" alt="Wos Sneakers" width={64} height={64} priority />
           </LocalizedClientLink>
           <div className="flex-1 basis-0" />
         </nav>

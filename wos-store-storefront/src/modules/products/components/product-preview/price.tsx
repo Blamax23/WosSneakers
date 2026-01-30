@@ -9,8 +9,6 @@ export default function PreviewPrice({ price }: { price: any }) {
     return null
   }
 
-  console.log("Voici le price final : ", price)
-
   // const formatter = new Intl.NumberFormat("fr-FR",{
   //   style: "currency",
 

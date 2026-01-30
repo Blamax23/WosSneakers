@@ -55,7 +55,7 @@ export default function GetCollectionsChoices({ collectionsChoisies }: Props) {
   return (
     <div>
       <h2 className="txt-compact-small-plus text-ui-fg-muted py-4">Collections</h2>
-      <ul className="flex flex-col gap-2 max-h-60 overflow-y-auto py-1 w-2/3">
+      <ul className="flex flex-col gap-2 max-h-60 overflow-y-auto py-1 w-full">
         {collections.map((c) => (
           <li key={c.id}>
             <label className="flex items-center gap-2 cursor-pointer txt-compact-small">
@@ -116,7 +116,7 @@ const PriceFilter = ({ minPrice, maxPrice, onPriceChange }: PriceFilterProps) =>
   }
 
   return (
-    <div className="border-b border-gray-200 pb-6 w-3/4">
+    <div className="border-b border-gray-200 pb-6 w-px-64">
       <h3 className="text-lg font-medium text-gray-900 mb-4">Prix</h3>
 
       <div className="space-y-4">

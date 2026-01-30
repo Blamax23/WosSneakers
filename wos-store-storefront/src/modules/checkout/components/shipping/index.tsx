@@ -12,6 +12,7 @@ import Divider from "@modules/common/components/divider"
 import MedusaRadio from "@modules/common/components/radio"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
+import SendcloudPickup from "./SendcloudPickup"
 
 const PICKUP_OPTION_ON = "__PICKUP_ON"
 const PICKUP_OPTION_OFF = "__PICKUP_OFF"
@@ -64,8 +65,6 @@ const Shipping: React.FC<ShippingProps> = ({
     cart.shipping_methods?.at(-1)?.shipping_option_id || null
   )
 
-  console.log("ship", availableShippingMethods)
-
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
@@ -79,9 +78,6 @@ const Shipping: React.FC<ShippingProps> = ({
   const _pickupMethods = availableShippingMethods?.filter(
     (sm) => sm.service_zone?.fulfillment_set?.type === "pickup"
   )
-
-  console.log("shippingMethods : ", _shippingMethods)
-  console.log("pickupMethods", _pickupMethods)
 
   const hasPickupOptions = !!_pickupMethods?.length
 
@@ -142,10 +138,13 @@ const Shipping: React.FC<ShippingProps> = ({
       (method) => method.id === currentId
     )
 
-    console.log("Je suis juste avant setShippingMethod")
 
+    let success = false
 
     await setShippingMethod({ cartId: cart.id, shippingMethodId: id })
+      .then(() => {
+        success = true
+      })
       .catch((err) => {
         setShippingMethodId(currentId)
 
@@ -154,6 +153,11 @@ const Shipping: React.FC<ShippingProps> = ({
       .finally(() => {
         setIsLoading(false)
       })
+
+    // Ensure server components receive the updated cart quickly
+    if (success) {
+      router.refresh()
+    }
   }
 
   useEffect(() => {
@@ -237,7 +241,9 @@ const Shipping: React.FC<ShippingProps> = ({
                         <span className="text-base-regular">
                           Retrait en magasin
                         </span>
-                      </div>
+                      
+<SendcloudPickup current={(cart as any)?.metadata?.sendcloud} />
+</div>
                       <span className="justify-self-end text-ui-fg-base">
                         -
                       </span>
@@ -377,7 +383,7 @@ const Shipping: React.FC<ShippingProps> = ({
               className="mt"
               onClick={handleSubmit}
               isLoading={isLoading}
-              disabled={!cart.shipping_methods?.[0]}
+              disabled={!shippingMethodId || isLoading}
               data-testid="submit-delivery-option-button"
             >
               Continuer vers le paiement

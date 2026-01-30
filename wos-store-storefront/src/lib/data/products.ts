@@ -75,8 +75,7 @@ export const listProducts = async ({
             ...queryParams,
           },
           headers,
-          next,
-          cache: "force-cache",
+          cache: "no-store",
         }
       ),
       8000 // 8 seconds timeout
@@ -109,8 +108,6 @@ export const listTrendingProducts = async (region: StoreRegion) => {
     ...(await getCacheOptions("products")),
   }
 
-  console.log("Voici la region : ", region.id)
-
   // Utiliser le SDK pour récupérer les produits
   try {
     const result = await fetchWithTimeout(
@@ -119,20 +116,18 @@ export const listTrendingProducts = async (region: StoreRegion) => {
         {
           method: "GET",
           query: {
-            fields: "*variants,*variants.prices,*metadata,*calculated_price",
-            region_id: region.id
-          },
+          fields: "*variants.calculated_price,*variants.prices,*metadata,*tags",
+          region_id: region.id,
+              },
+
           headers,
-          next,
-          cache: "force-cache",
+          cache: "no-store",
         }
       ),
       8000
     );
-
-    console.log("Produits à la fraiche, fraichement récupérés : ", result.products)
     const trendingProducts = result.products.filter(
-      (product) => product.metadata?.Tendance === true
+      (product) => product.metadata?.tendance === true
     );
     return trendingProducts;
   } catch (error) {
@@ -141,10 +136,7 @@ export const listTrendingProducts = async (region: StoreRegion) => {
   }
 }
 
-/**
- * This will fetch 100 products to the Next.js cache and sort them based on the sortBy parameter.
- * It will then return the paginated products based on the page and limit parameters.
- */
+
 export const listProductsWithSort = async ({
   page = 0,
   queryParams,
@@ -186,10 +178,6 @@ export const listProductsWithSort = async ({
     const minVariantPrice = Math.min(
       ...(product.variants?.map(v => v.calculated_price?.original_amount ?? Infinity) ?? [])
     )
-
-    console.log(Math.min(
-      ...(product.variants?.map(v => v.calculated_price?.original_amount ?? Infinity) ?? [])
-    ))
 
     return (
       (priceMin === null || minVariantPrice >= priceMin) &&

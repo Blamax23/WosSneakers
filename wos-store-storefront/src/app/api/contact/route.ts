@@ -2,31 +2,25 @@
 import { NextResponse } from "next/server"
 import nodemailer from "nodemailer"
 
-export async function POST(req: Request) {
+export async function POST(req: Request, res: NextResponse) {
     const { name, email, message } = await req.json()
 
     try {
-        const transporter = nodemailer.createTransport({
-            host: "smtp.gmail.com",
-            port: 587,
-            secure: false,
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
-            },
+
+        const notificationModuleService = container.resolve(Modules.NOTIFICATION)
+
+        // Mettre à jour l'email
+        await customerService.updateCustomers(customerId, {
+        email,
         })
 
-        await transporter.sendMail({
-            from: `"${name}" <${email}>`,
-            to: process.env.CONTACT_EMAIL,
-            subject: "Nouveau message via le formulaire de contact",
-            text: message,
-            html: `<p><strong>Nom:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p>${message}</p>`,
+        return res.status(200).json({
+        message: "Email mis à jour avec succès",
         })
-
-        return NextResponse.json({ success: true })
-    } catch (err) {
-        console.error("Erreur d'envoi :", err)
-        return NextResponse.json({ message: "Erreur lors de l'envoi du mail" }, { status: 500 })
+    } catch (error: any) {
+        console.error("❌ Erreur mise à jour email:", error)
+        return res.status(500).json({
+        message: error?.message || "Erreur lors de la mise à jour de l'email",
+        })
     }
 }

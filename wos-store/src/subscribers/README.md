@@ -15,7 +15,6 @@ import {
 
 // subscriber function
 export default async function productCreateHandler() {
-  console.log("A product was created")
 }
 
 // subscriber config
@@ -51,8 +50,6 @@ export default async function productCreateHandler({
   const productModuleService = container.resolve("product")
 
   const product = await productModuleService.retrieveProduct(productId)
-
-  console.log(`The product ${product.title} was created`)
 }
 
 export const config: SubscriberConfig = {

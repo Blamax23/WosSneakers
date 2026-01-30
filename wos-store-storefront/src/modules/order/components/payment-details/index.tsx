@@ -10,10 +10,6 @@ type PaymentDetailsProps = {
 }
 
 const PaymentDetails = ({ order }: PaymentDetailsProps) => {
-  console.log("PaymentDetails - Order reçu:", order)
-  console.log("PaymentDetails - Order type:", typeof order)
-  console.log("PaymentDetails - Order null?", order === null)
-  console.log("PaymentDetails - Order undefined?", order === undefined)
 
   // Vérification plus robuste
   if (!order) {
