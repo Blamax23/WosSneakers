@@ -29,6 +29,33 @@ export default async function OrderConfirmedPage({ params }: { params: { id: str
       }
       : order
   }
+  console.log("Voici les metadata de l'order : ", orderMetadata)
+  console.log("J'affiche l'order au départ : ", fullOrder)
+
+  // let labelData = null
+  // Handle SendCloud integration on the server
+  // if (order.shipping_methods?.length) {
+  //   try {
+  //     labelData = await sendOrderToSendCloud(fullOrder)
+  //     console.log("Order sent to SendCloud successfully")
+  //   } catch (error) {
+  //     console.error("Error sending order to SendCloud:", error)
+  //   }
+  // }
+
+  // if (labelData!) {
+  //   console.log(labelData.label.parcel.id)
+  //   const trackingLink = await getTrackingLinkOrder(labelData.label.parcel.id.toString())
+  //   fullOrder = {
+  //     ...fullOrder,
+  //     metadata: {
+  //       ...fullOrder?.metadata,
+  //       tracking_link: trackingLink,
+  //     },
+  //   } as StoreOrder
+  // }
+
+  // console.log("J'ai ajouté le trackingLink : ", fullOrder)
 
   if (fullOrder!) {
     return <OrderCompletedTemplate order={fullOrder} />

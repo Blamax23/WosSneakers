@@ -108,7 +108,7 @@ const EditAddress: React.FC<EditAddressProps> = ({
             data-testid="address-edit-button"
           >
             <Edit />
-            Modifier
+            Edit
           </button>
           <button
             className="text-small-regular text-ui-fg-base flex items-center gap-x-2"
@@ -116,14 +116,14 @@ const EditAddress: React.FC<EditAddressProps> = ({
             data-testid="address-delete-button"
           >
             {removing ? <Spinner /> : <Trash />}
-            Supprimer
+            Remove
           </button>
         </div>
       </div>
 
       <Modal isOpen={state} close={close} data-testid="edit-address-modal">
         <Modal.Title>
-          <Heading className="mb-2">Modifier l'adresse</Heading>
+          <Heading className="mb-2">Edit address</Heading>
         </Modal.Title>
         <form action={formAction}>
           <input type="hidden" name="addressId" value={address.id} />
@@ -201,6 +201,13 @@ const EditAddress: React.FC<EditAddressProps> = ({
                 autoComplete="country"
                 defaultValue={address.country_code || undefined}
                 data-testid="country-select"
+              />
+              <Input
+                label="Téléphone"
+                name="phone"
+                autoComplete="phone"
+                defaultValue={address.phone || undefined}
+                data-testid="phone-input"
               />
             </div>
             {formState.error && (

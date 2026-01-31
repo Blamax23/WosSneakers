@@ -3,6 +3,7 @@ import moment from "moment"
 export const atMidnight = (date) => {
   const result = moment(date)
   if (!moment.isMoment(result)) {
+    console.log("date is not instance of Moment: ", date)
     return null
   }
   result.hour(0)

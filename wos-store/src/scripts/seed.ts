@@ -296,7 +296,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
     },
   });
   const publishableApiKey = publishableApiKeyResult[0];
-  logger.info(`✅ MEDUSA PUBLISHABLE KEY (Webshop): ${publishableApiKey.id}`)
 
   await linkSalesChannelsToApiKeyWorkflow(container).run({
     input: {

@@ -50,11 +50,11 @@ class SendcloudService {
       throw new Error("SendCloud API credentials are required")
     }
 
-    console.log("PUBLIC SENDCLOUD PUBLIC KEY : ", process.env.SENDCLOUD_PUBLIC_KEY)
-    console.log("PUBLIC SENDCLOUD PRIVATE KEY : ", process.env.SENDCLOUD_PRIVATE_KEY)
+    console.log("PUBLIC SENDCLOUD PUBLIC KEY : ", process.env.NEXT_PUBLIC_SENDCLOUD_PUBLIC_KEY)
+    console.log("PUBLIC SENDCLOUD PRIVATE KEY : ", process.env.NEXT_PUBLIC_SENDCLOUD_PRIVATE_KEY)
 
-    this.apiKey_ = process.env.SENDCLOUD_PUBLIC_KEY || options.sendcloudApiKey
-    this.apiSecret_ = process.env.SENDCLOUD_PRIVATE_KEY || options.sendcloudApiSecret
+    this.apiKey_ = process.env.NEXT_PUBLIC_SENDCLOUD_PUBLIC_KEY || options.sendcloudApiKey
+    this.apiSecret_ = process.env.NEXT_PUBLIC_SENDCLOUD_PRIVATE_KEY || options.sendcloudApiSecret
     this.baseUrl_ = "https://panel.sendcloud.sc/api/v2"
   }
 

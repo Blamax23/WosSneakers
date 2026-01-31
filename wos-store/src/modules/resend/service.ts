@@ -6,6 +6,7 @@ import {
     Logger,
     ProviderSendNotificationDTO, 
     ProviderSendNotificationResultsDTO,
+
 } from "@medusajs/framework/types"
 import { 
     Resend,
@@ -14,9 +15,7 @@ import {
 
 import { orderPlacedEmail } from "./emails/order-placed"
 import { customerCreatedEmail } from "./emails/customer-created"
-import { passwordResetEmail } from "./emails/password-reset"
-import { customerDeletedEmail } from "./emails/customer-deleted"
-import { messageSent } from "./emails/message-sent"
+
 
 type ResendOptions = {
     api_key: string
@@ -35,19 +34,15 @@ enum Templates {
     ORDER_PLACED = "order-placed",
     ORDER_COMPLETED = "order-completed",
     CUSTOMER_CREATED = "customer-created",
-    PASSWORD_RESET = "password-reset",
-    CUSTOMER_DELETED = "customer-deleted",
-    MESSAGE_SENT = "message-sent",
 }
 
 const templates: {[key in Templates]?: (props: unknown) => React.ReactNode} = {
     [Templates.ORDER_PLACED]: orderPlacedEmail,
     [Templates.ORDER_COMPLETED]: orderPlacedEmail,
     [Templates.CUSTOMER_CREATED]: customerCreatedEmail,
-    [Templates.PASSWORD_RESET]: passwordResetEmail,
-    [Templates.CUSTOMER_DELETED]: customerDeletedEmail,
-    [Templates.MESSAGE_SENT]: messageSent,
 }
+
+
 
 class ResendNotificationProviderService extends AbstractNotificationProviderService {
     static identifier = "notification-resend"
@@ -104,10 +99,6 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
                 return "Ta commande est arrivée chez toi !"
             case Templates.CUSTOMER_CREATED:
                 return "Bienvenue chez WOS Sneakers !"
-            case Templates.PASSWORD_RESET: // ← AJOUT
-                return "Réinitialisation de votre mot de passe"
-            case Templates.CUSTOMER_DELETED:
-                return "Votre compte a été supprimé"
             default:
                 return "Un email de WOS Sneakers est arrivé"
         }

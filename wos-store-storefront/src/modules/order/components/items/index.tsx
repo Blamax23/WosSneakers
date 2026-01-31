@@ -13,6 +13,8 @@ type ItemsProps = {
 const Items = ({ order }: ItemsProps) => {
   const items = order.items
 
+  console.log("J'affiche l'order : ", order)
+
   return (
     <div className="flex flex-col">
       <Divider className="!mb-0" />
@@ -24,6 +26,7 @@ const Items = ({ order }: ItemsProps) => {
                   return (a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1
                 })
                 .map((item) => {
+                  console.log("JE vous montre un item : ", item)
                   return (
                     <Item
                       key={item.id}

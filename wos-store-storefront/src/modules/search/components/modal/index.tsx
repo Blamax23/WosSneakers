@@ -58,7 +58,7 @@ const Hit = ({ hit }: { hit: Hit }) => {
         <h3>{hit.title}</h3>
         <p className="text-sm text-gray-500">{hit.description}</p>
       </div>
-      <Link href={`/products/${hit.handle}`} className="absolute right-0 top-0 w-full h-full" aria-label={`Voir le produit: ${hit.title}`} />
+      <Link href={`/products/${hit.handle}`} className="absolute right-0 top-0 w-full h-full" aria-label={`View Product: ${hit.title}`} />
     </div>
   )
 }

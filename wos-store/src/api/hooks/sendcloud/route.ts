@@ -10,6 +10,9 @@ export async function POST(
     req: MedusaRequest,
     res: MedusaResponse
 ) {
+
+    console.log("Voici ce que j'ai reçu : ", req.body)
+
     const result = req.body as WebhookPayload
     res.status(200).send("OK")
 

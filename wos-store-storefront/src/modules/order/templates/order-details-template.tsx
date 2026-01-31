@@ -18,6 +18,7 @@ type OrderDetailsTemplateProps = {
 const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
   order,
 }) => {
+  console.log("Order dans le détail : ", order)
   return (
     <div className="flex flex-col justify-center gap-y-4">
       <div className="flex gap-2 justify-between items-center">

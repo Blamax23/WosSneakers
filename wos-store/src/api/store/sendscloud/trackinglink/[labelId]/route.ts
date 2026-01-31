@@ -3,6 +3,8 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 export async function POST(req: any, res: MedusaResponse) {
     const { labelId } = req.params as { labelId: string }
 
+    console.log(`Récupération du lien de suivi pour le label : ${labelId}`)
+
     const sendcloudService = req.scope.resolve("sendcloudService") as {
         getTrackingLink: (labelId: string) => Promise<string>
     }

@@ -12,6 +12,8 @@ export async function POST(req: MedusaRequest<OrderRequestBody>, res: MedusaResp
     return res.status(400).json({ error: "Missing 'order' in request body" })
   }
 
+  console.log(`Creating label for order_id: ${order_id}`)
+
   const sendcloudService = req.scope.resolve("sendcloudService") as {
     createLabelForOrder: (order: any) => Promise<any>
   }

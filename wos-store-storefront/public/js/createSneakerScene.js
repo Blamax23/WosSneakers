@@ -1,12 +1,10 @@
 function createSneakerScene(containerId, nom, heightDiv) {
     // Configuration de la scène Three.js
-    alert("CE FICHIER EST BIEN CHARGÉ");
     const container = document.getElementById(containerId);
     container.style.width = '49%';
     container.style.height = heightDiv + '%';
-
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color('rgb(0, 0, 0)');
+    scene.background = new THREE.Color('rgb(0, 0, 0)'); // Ajout d'un fond gris clair
 
     // Ajustement du ratio de la caméra
     const width = container.clientWidth;
@@ -21,41 +19,52 @@ function createSneakerScene(containerId, nom, heightDiv) {
     renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(renderer.domElement);
 
-    // Éclairage
+    // Éclairage amélioré
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
-
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-
-    camera = new THREE.PerspectiveCamera(70, width / height, 0.1, 10000);
-    camera.position.set(25, 25, 25);
-
+    if (containerId === 'chaussure-gauche') {
+        camera = new THREE.PerspectiveCamera(3.25, width / height, 0.1, 10000);
+        camera.position.set(3, 3, 3);
+    } else {
+        console.log("on est dans le droit");
+        camera = new THREE.PerspectiveCamera(3, width / height, 0.1, 10000);
+        camera.position.set(3, 4, 3);
+    }
     scene.add(directionalLight);
 
+    // Ajout d'une lumière d'appoint
     const pointLight = new THREE.PointLight(0xffffff, 0.5);
     pointLight.position.set(-5, 5, -5);
     scene.add(pointLight);
 
-    // Contrôles
+    // Configuration des contrôles
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
+    controls.enableDamping = true; // Ajoute de l'inertie aux contrôles
     controls.enableZoom = false;
     controls.dampingFactor = 0.05;
 
-    controls.rotateSpeed = 0.3;
-
-    controls.minAzimuthAngle = -Infinity;
+    controls.rotateSpeed = 0.3;  // Réduit la vitesse de rotation (défaut: 1.0)
+    controls.minPolarAngle = Math.PI / 4;  // Limite l'angle vertical minimum
+    controls.maxPolarAngle = Math.PI / 1.5; // Limite l'angle vertical maximum
+    controls.minAzimuthAngle = -Math.PI / 2; // Limite la rotation horizontale minimum
+    controls.maxAzimuthAngle = Math.PI / 2;  // Limite la rotation horizontale maximum
+    controls.minAzimuthAngle = -Infinity; // Pas de limite minimale
     controls.maxAzimuthAngle = Infinity;
     controls.minPolarAngle = -Infinity;
     controls.maxPolarAngle = Infinity;
 
+    // Position initiale de la caméra
     controls.update();
+
 
     let autoRotate = true;
 
+    // Fonction d'animation
     function animate() {
         requestAnimationFrame(animate);
 
+        // Ajout des gestionnaires d'événements pour la souris
         renderer.domElement.addEventListener('mousedown', () => {
             autoRotate = false;
         });
@@ -64,16 +73,18 @@ function createSneakerScene(containerId, nom, heightDiv) {
             autoRotate = true;
         });
 
+        //if (autoRotate) {
+        //    modelGroup.rotation.y -= 0.005;
+        //}
+
         controls.update();
         renderer.render(scene, camera);
     }
 
+    // Démarrage de l'animation
     animate();
 
-    // =======================
-    // CHARGEMENT DU MODÈLE
-    // =======================
-
+    // Chargement du modèle GLB
     const loader = new THREE.GLTFLoader();
     let nomFichier = '/models/' + nom + '.glb';
 
@@ -83,23 +94,12 @@ function createSneakerScene(containerId, nom, heightDiv) {
 
             const model = gltf.scene;
 
-            // ===========================
-            // 🔴 ICI LE VRAI ZOOM
-            // ===========================
-
-            model.traverse((child) => {
-                if (child.isMesh) {
-                    child.scale.set(0.35, 0.35, 0.35);
-                }
-            });
-            // → DIMINUE = modèle plus petit
-            // → AUGMENTE = modèle plus grand
-
-            // Recalcul APRÈS le scale
+            // Calculer la boîte englobante
             const box = new THREE.Box3().setFromObject(model);
             const center = box.getCenter(new THREE.Vector3());
             const size = box.getSize(new THREE.Vector3());
 
+            // Ajuster la position du modèle pour qu'il soit centré
             model.position.sub(center);
 
             if (containerId === 'chaussure-gauche') {
@@ -109,20 +109,21 @@ function createSneakerScene(containerId, nom, heightDiv) {
             } else {
                 model.position.x = 0.1;
                 model.position.y = 0.0;
-                model.position.z = 5;
+                model.position.z = 0.05;
             }
 
+            console.log(model.position);
+
             const pivotGroup = new THREE.Group();
-            scene.add(pivotGroup);
+            scene.add(pivotGroup); // Ajoute le pivot à la scène
 
-            pivotGroup.position.set(
-                model.position.x,
-                model.position.y,
-                model.position.z
-            );
+            // Positionne le pivot au même endroit que la chaussure
+            pivotGroup.position.set(model.position.x, model.position.y, model.position.z);
 
+            // Ajoute le modèle au pivot
             pivotGroup.add(model);
 
+            // Déplace le modèle à l’intérieur du pivot (ajuste localement)
             model.position.set(0, 0, 0);
         },
         (xhr) => {
@@ -133,7 +134,7 @@ function createSneakerScene(containerId, nom, heightDiv) {
         }
     );
 
-    // Resize
+    // Gestion du redimensionnement
     window.addEventListener('resize', () => {
         const newWidth = container.clientWidth;
         const newHeight = container.clientHeight;
@@ -144,6 +145,7 @@ function createSneakerScene(containerId, nom, heightDiv) {
         renderer.setSize(newWidth, newHeight);
     });
 
+    // Initialisation de la taille du renderer
     function initRendererSize() {
         const newWidth = container.clientWidth;
         const newHeight = container.clientHeight;
@@ -154,9 +156,12 @@ function createSneakerScene(containerId, nom, heightDiv) {
         renderer.setSize(newWidth, newHeight);
     }
 
+    // Appel initial pour définir la taille du renderer
     initRendererSize();
 }
 
-// Appels
-createSneakerScene('chaussure-gauche', 'bestnikeair', "100", "1");
-createSneakerScene('chaussure-droite', 'in_underwear', "100", "1");
+// Appel de la fonction de création de la scène
+createSneakerScene('chaussure-gauche', 'sb2-light', "100");
+createSneakerScene('chaussure-droite', 'af1-light', "100");
+//createSneakerScene('chaussure-droite', 'dunk', "100", "30");
+

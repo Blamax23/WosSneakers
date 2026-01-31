@@ -8,6 +8,7 @@ export default async function customerCreatedHandler({
     event: { data },
     container,
 }: SubscriberArgs<{ id: string }>) {
+    console.log("On rentre dans la route pour le customer created")
     await sendCustomerCreatedWorkflow(container)
         .run({
             input: {

@@ -71,6 +71,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 }
 
+console.log("Products", listProducts({ countryCode: "FR" }))
+
 export default async function ProductPage(props: Props) {
   const params = await props.params
   const region = await getRegion(params.countryCode)

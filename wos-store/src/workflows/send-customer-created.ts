@@ -31,6 +31,9 @@ export const sendCustomerCreatedWorkflow = createWorkflow(
 
         addToResendStep(customer)
 
+
+        console.log("orders", customers)
+
         const notification = sendNotificationStep([{
             to: customers[0].email as string,
             channel: "email",

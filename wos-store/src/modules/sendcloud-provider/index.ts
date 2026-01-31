@@ -1,5 +1,5 @@
+import { Modules, ModuleProvider } from "@medusajs/framework/utils"
 import SendcloudProviderService from "./service"
-import { ModuleProvider, Modules } from "@medusajs/framework/utils"
 
 export default ModuleProvider(Modules.FULFILLMENT, {
   services: [SendcloudProviderService],

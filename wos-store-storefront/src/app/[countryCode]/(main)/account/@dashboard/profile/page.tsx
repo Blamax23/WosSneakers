@@ -9,7 +9,6 @@ import ProfilePassword from "@modules/account/components/profile-password"
 import { notFound } from "next/navigation"
 import { listRegions } from "@lib/data/regions"
 import { retrieveCustomer } from "@lib/data/customer"
-import ProfileDelete from "@modules/account/components/profile-delete"
 
 export const metadata: Metadata = {
   title: "Profil",
@@ -42,11 +41,9 @@ export default async function Profile() {
         <Divider />
         <ProfilePhone customer={customer} />
         <Divider />
-        <ProfilePassword customer={customer} />
-        <Divider />
+        {/* <ProfilePassword customer={customer} />
+        <Divider /> */}
         <ProfileBillingAddress customer={customer} regions={regions} />
-        <Divider />
-        <ProfileDelete customer={customer} />
       </div>
     </div>
   )

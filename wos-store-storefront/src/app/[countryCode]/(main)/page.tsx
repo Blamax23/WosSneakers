@@ -5,12 +5,8 @@ import Hero from "@modules/home/components/hero"
 import { listCollections } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
 import Atouts from "@modules/home/components/hero/atouts"
-import SocialMedia from "@modules/home/components/hero/socialmedia"
 import { listTrendingProducts } from "@lib/data/products"
 import TrendingProducts from "@modules/home/components/trending-products"
-import { sdk } from "@lib/config"
-import exp from "constants"
-
 
 export const metadata: Metadata = {
   title: "WOS Sneakers",
@@ -27,14 +23,8 @@ export default async function Home(props: {
 
   const region = await getRegion(countryCode)
 
-  let { collections_full } = await listCollections({
-    fields: "id, handle, title",
-  })
-
-  const full = sdk.store.collection.list({
-    fields: "id,title,handle,metadata"
-  }).then(({ collections }) => {
-    collections_full = collections
+  const { collections } = await listCollections({
+    fields: "id, handle, title, metadata",
   })
 
   let trendingProducts = null
@@ -42,7 +32,9 @@ export default async function Home(props: {
     trendingProducts = await listTrendingProducts(region)
   }
 
-  if (!collections_full || !region) {
+  console.log("Voici les trendingProducts : ", trendingProducts)
+
+  if (!collections || !region) {
     return null
   }
 
@@ -57,10 +49,9 @@ export default async function Home(props: {
             <TrendingProducts products={trendingProducts} region={region} />
           )}
 
-          <FeaturedProducts collections={collections_full} region={region} />
+          <FeaturedProducts collections={collections} region={region} />
         </ul>
         <Atouts></Atouts>
-        <SocialMedia></SocialMedia>
       </div>
     </>
   )

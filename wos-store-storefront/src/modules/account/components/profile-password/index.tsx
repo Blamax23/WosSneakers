@@ -4,7 +4,7 @@ import React, { useEffect, useActionState } from "react"
 import Input from "@modules/common/components/input"
 import AccountInfo from "../account-info"
 import { HttpTypes } from "@medusajs/types"
-import { updateCustomerPassword } from "@lib/data/customer"
+import { toast } from "@medusajs/ui"
 
 type MyInformationProps = {
   customer: HttpTypes.StoreCustomer
@@ -13,53 +13,49 @@ type MyInformationProps = {
 const ProfilePassword: React.FC<MyInformationProps> = ({ customer }) => {
   const [successState, setSuccessState] = React.useState(false)
 
-  const [state, formAction] = useActionState(updateCustomerPassword, {
-    error: null,
-    success: false,
-  })
+  // TODO: Add support for password updates
+  const updatePassword = async () => {
+    toast.info("Password update is not implemented")
+  }
 
   const clearState = () => {
     setSuccessState(false)
   }
 
-  useEffect(() => {
-    setSuccessState(state.success)
-  }, [state])
-
   return (
     <form
-      action={formAction}
+      action={updatePassword}
       onReset={() => clearState()}
       className="w-full"
     >
       <AccountInfo
-        label="Mot de passe"
+        label="Password"
         currentInfo={
-          <span>Le mot de passe n'est pas affiché pour des raisons de sécurité</span>
+          <span>The password is not shown for security reasons</span>
         }
         isSuccess={successState}
-        isError={!!state?.error}
-        errorMessage={state?.error as string | undefined}
+        isError={false}
+        errorMessage={undefined}
         clearState={clearState}
         data-testid="account-password-editor"
       >
         <div className="grid grid-cols-2 gap-4">
           <Input
-            label="Ancien mot de passe"
+            label="Old password"
             name="old_password"
             required
             type="password"
             data-testid="old-password-input"
           />
           <Input
-            label="Nouveau mot de passe"
+            label="New password"
             type="password"
             name="new_password"
             required
             data-testid="new-password-input"
           />
           <Input
-            label="Confirmer le mot de passe"
+            label="Confirm password"
             type="password"
             name="confirm_password"
             required

@@ -2,7 +2,6 @@ import {
     createWorkflow, 
     WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { createSendcloudParcelStep } from "./steps/create-sendcloud-parcel"
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import { sendNotificationStep } from "./steps/send-notification"
 
@@ -41,13 +40,6 @@ export const sendOrderConfirmationWorkflow = createWorkflow(
         },
     })
     
-        const parcel = createSendcloudParcelStep(orders[0])
-
-        // Optionally skip our own emails if Sendcloud emails are enabled
-        if (process.env.SENDCLOUD_EMAILS_ENABLED === "true") {
-            return new WorkflowResponse({ ok: true, sendcloud: true })
-        }
-
         const notification = sendNotificationStep([{
             to: orders[0].email as string,
             channel: "email",

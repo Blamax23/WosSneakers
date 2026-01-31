@@ -14,7 +14,7 @@ export default async function algoliaSyncHandler({
     const limit = 50
     let totalIndexed = 0
 
-    logger.info("Début de l'indexation des produits...")
+    logger.info("Starting product indexing...")
 
     while (hasMore) {
         const { result: { products, metadata } } = await syncProductsWorkflow(container)
@@ -30,7 +30,7 @@ export default async function algoliaSyncHandler({
         totalIndexed += products.length
     }
 
-    logger.info(`${totalIndexed} produits indexés dans Algolia.`)
+    logger.info(`Successfully indexed ${totalIndexed} products`)
 }
 
 export const config: SubscriberConfig = {

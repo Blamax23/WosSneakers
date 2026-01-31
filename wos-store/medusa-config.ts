@@ -1,12 +1,15 @@
-import { loadEnv, defineConfig } from "@medusajs/framework/utils"
+import { loadEnv, defineConfig } from '@medusajs/framework/utils'
 
-loadEnv(process.env.NODE_ENV || "development", process.cwd())
+loadEnv(process.env.NODE_ENV || 'development', process.cwd())
+
+const dotenv = require("dotenv");
+dotenv.config();
 
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     http: {
-      storeCors: process.env.STORE_CORS || "http://localhost:8000,http://127.0.0.1:8000",
+      storeCors: "http://localhost:8000",
       adminCors: process.env.ADMIN_CORS!,
       authCors: process.env.AUTH_CORS!,
       jwtSecret: process.env.JWT_SECRET || "supersecret",
@@ -22,13 +25,15 @@ module.exports = defineConfig({
       }
     },
   },
+
   modules: [
     {
-      resolve: "./src/modules/sendcloud",
+      resolve: `./src/modules/sendcloud`,
       options: {
-        sendcloudApiKey: process.env.SENDCLOUD_PUBLIC_KEY,
-        sendcloudApiSecret: process.env.SENDCLOUD_PRIVATE_KEY,
+        sendcloudApiKey: process.env.NEXT_PUBLIC_SENDCLOUD_PUBLIC_KEY,
+        sendcloudApiSecret: process.env.NEXT_PUBLIC_SENDCLOUD_PRIVATE_KEY,
       },
+
     },
     {
       resolve: "@medusajs/medusa/payment",
@@ -39,7 +44,6 @@ module.exports = defineConfig({
             id: "stripe",
             options: {
               apiKey: process.env.STRIPE_API_KEY,
-              webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
               capture: true,
             },
           },
@@ -50,14 +54,27 @@ module.exports = defineConfig({
       resolve: "@medusajs/medusa/fulfillment",
       options: {
         providers: [
+          // default provider
           {
             resolve: "@medusajs/medusa/fulfillment-manual",
             id: "manual",
           },
           {
+            // if module provider is in a plugin, use `plugin-name/providers/my-fulfillment`
             resolve: "./src/modules/sendcloud-provider",
-            // Pas d'ID spécifié - utilisera celui auto-généré : sendcloud_provider
+            id: "my-fulfillment",
+            options: {
+              sendcloudApiKey: process.env.NEXT_PUBLIC_SENDCLOUD_PUBLIC_KEY,
+              sendcloudApiSecret: process.env.NEXT_PUBLIC_SENDCLOUD_PRIVATE_KEY,
+            },
           },
+          // {
+          //   resolve: "./src/modules/shipstation",
+          //   id: "shipstation",
+          //   options: {
+          //     api_key: process.env.SHIPSTATION_API_KEY,
+          //   },
+          // },
         ],
       },
     },
@@ -74,19 +91,23 @@ module.exports = defineConfig({
               from: process.env.RESEND_FROM_EMAIL,
             },
             templates: [
-              { template_id: "customer-created", type: "email" },
-              { template_id: "order-placed", type: "email" },
-              { template_id: "order-completed", type: "email" },
-              { template_id: "password-reset", type: "email" },
-              { template_id: "customer-deleted", type: "email" }
+              {
+                template_id: "customer-created",
+                type: "email",
+                // les autres templates...
+              },
+              {
+                template_id: "order-placed",
+                type: "email",
+              },
+              {
+                template_id: "order-completed",
+                type: "email",
+              },
             ],
           },
         ],
       },
-    },
-    {
-      resolve: "./src/modules/documents",
-      options: {},
     },
     {
       resolve: "./src/modules/algolia",
@@ -96,5 +117,17 @@ module.exports = defineConfig({
         productIndexName: process.env.ALGOLIA_PRODUCT_INDEX_NAME!,
       },
     },
+    {
+      resolve: "./src/modules/documents",
+      options: {}
+    }
+    // {
+    //   resolve: '@hifive-dev/medusa-fulfillment-sendcloud',
+    //   options: {
+    //     api_key: process.env.SENDCLOUD_PUBLIC_KEY,
+    //     api_secret: process.env.SENDCLOUD_PRIVATE_KEY,
+    //     // Autres options si nécessaire
+    //   },
+    // },
   ],
 })

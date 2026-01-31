@@ -11,6 +11,6 @@ export async function POST(
         data: {},
     })
     res.send({
-        message: "Synchronisation vers Algolia déclenchée avec succès",
+        message: "Syncing data to Algolia",
     })
 }

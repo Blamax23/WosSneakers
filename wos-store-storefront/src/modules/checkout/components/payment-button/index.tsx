@@ -5,12 +5,9 @@ import { placeOrder } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@medusajs/ui"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
-import React, { useState } from "react"
+import { useParams } from "next/navigation"
+import React, { useEffect, useState } from "react"
 import ErrorMessage from "../error-message"
-
-// src/modules/checkout/components/payment-button/index.tsx
-import { useEffect } from "react"
-import { useParams, usePathname, useRouter } from "next/navigation"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
@@ -28,12 +25,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     !cart.email ||
     (cart.shipping_methods?.length ?? 0) < 1
 
-  const { countryCode } = useParams()
-  const router = useRouter()
-  const pathname = usePathname()
-  const paymentSession = cart.payment_collection?.payment_sessions?.find(
-    (session) => session.provider_id === "pp_stripe_stripe"
-  )
+  const paymentSession = cart.payment_collection?.payment_sessions?.[0]
 
   switch (true) {
     case isStripe(paymentSession?.provider_id):
@@ -45,7 +37,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         />
       )
     default:
-      return <Button disabled>Choisissez un moyen de paiement</Button>
+      return <Button disabled>Select a payment method</Button>
   }
 }
 
@@ -63,27 +55,23 @@ const StripePaymentButton = ({
 
   const { countryCode } = useParams()
 
-  const router = useRouter()
-  const pathname = usePathname()
+  console.log("Voici le panier : ", cart)
 
-  const paymentSession =
-  cart.payment_collection?.payment_sessions?.find(
-    (session) =>
-      isStripe(session.provider_id) &&
-      ["pending", "authorized", "requires_more"].includes(session.status as any)
-  ) ??
-  cart.payment_collection?.payment_sessions?.find((session) =>
-    isStripe(session.provider_id)
+  console.log("Voici la payment session : ", cart.payment_collection?.payment_sessions)
+
+  const paymentSession = cart.payment_collection?.payment_sessions?.find(
+    (session) => session.provider_id === "pp_stripe_stripe"
   )
 
   const onPaymentCompleted = async () => {
-  try {
     await placeOrder()
-  } catch (err: any) {
-    setErrorMessage(err?.message ?? "Impossible de finaliser la commande.")
-    throw err
+      .catch((err) => {
+        setErrorMessage(err.message)
+      })
+      .finally(() => {
+        setSubmitting(false)
+      })
   }
-}
 
   const stripe = useStripe()
   const elements = useElements()
@@ -91,91 +79,75 @@ const StripePaymentButton = ({
   const disabled = !stripe || !elements ? true : false
 
   const handlePayment = async () => {
-  if (!stripe || !elements || !cart) {
-    return
-  }
-  setSubmitting(true)
+    if (!stripe || !elements || !cart) return
 
-  const { error: submitError } = await elements.submit()
-  if (submitError) {
-    setErrorMessage(submitError.message || null)
-    setSubmitting(false)
-    return
-  }
+    setSubmitting(true)
+    setErrorMessage(null)
 
-  const clientSecret = paymentSession?.data?.client_secret as string
+    try {
+      // 👇 Étape 1 : Soumission du PaymentElement (validations frontend)
+      const { error: submitError } = await elements.submit()
+      if (submitError) {
+        setErrorMessage(submitError.message ?? "Erreur de validation.")
+        return
+      }
 
-  await stripe
-    .confirmPayment({
-      elements,
-      clientSecret,
-      confirmParams: {
-        return_url: `${
-          window.location.origin
-        }/api/capture-payment/${cart.id}?country_code=${countryCode}`,
-        payment_method_data: {
-          billing_details: {
-            name:
-              cart.billing_address?.first_name +
-              " " +
-              cart.billing_address?.last_name,
-            address: {
-              city: cart.billing_address?.city ?? undefined,
-              country: cart.billing_address?.country_code ?? undefined,
-              line1: cart.billing_address?.address_1 ?? undefined,
-              line2: cart.billing_address?.address_2 ?? undefined,
-              postal_code: cart.billing_address?.postal_code ?? undefined,
-              state: cart.billing_address?.province ?? undefined,
+      // 👇 Étape 2 : Confirmation du paiement
+      const clientSecret = paymentSession?.data?.client_secret as string
+
+      const { error } = await stripe.confirmPayment({
+        elements,
+        clientSecret,
+        confirmParams: {
+          return_url: `${window.location.origin}/api/capture-payment/${cart.id}?country_code=${countryCode}`,
+          payment_method_data: {
+            billing_details: {
+              name:
+                cart.billing_address?.first_name +
+                " " +
+                cart.billing_address?.last_name,
+              address: {
+                city: cart.billing_address?.city ?? undefined,
+                country: cart.billing_address?.country_code ?? undefined,
+                line1: cart.billing_address?.address_1 ?? undefined,
+                line2: cart.billing_address?.address_2 ?? undefined,
+                postal_code: cart.billing_address?.postal_code ?? undefined,
+                state: cart.billing_address?.province ?? undefined,
+              },
+              email: cart.email,
+              phone: cart.billing_address?.phone ?? undefined,
             },
-            email: cart.email,
-            phone: cart.billing_address?.phone ?? undefined,
           },
         },
-      },
-      redirect: "if_required",
-    })
-    .then(({ error, paymentIntent }) => {
+        redirect: "if_required",
+      })
+
       if (error) {
         const pi = error.payment_intent
 
         if (
-          (pi && pi.status === "requires_capture") ||
-          (pi && pi.status === "succeeded")
+          pi?.status === "requires_capture" ||
+          pi?.status === "succeeded"
         ) {
-          onPaymentCompleted()
-          return
+          await onPaymentCompleted()
+        } else {
+          setErrorMessage(error.message ?? "Erreur de paiement.")
         }
-
-        setErrorMessage(error.message || null)
-        setSubmitting(false)
-        return
       }
 
-      if (
-        paymentIntent.status === "requires_capture" ||
-        paymentIntent.status === "succeeded"
-      ) {
-        onPaymentCompleted()
-      }
-    })
-}
-
-
-useEffect(() => {
-  if (cart.payment_collection?.status === "authorized") {
-    onPaymentCompleted()
-  }
-}, [cart.payment_collection?.status])
-
-useEffect(() => {
-  elements?.getElement("payment")?.on("change", (e) => {
-    if (!e.complete) {
-      router.push(pathname + "?step=payment", {
-        scroll: false,
-      })
+    } catch (err: any) {
+      setErrorMessage(err.message ?? "Une erreur est survenue.")
+    } finally {
+      setSubmitting(false)
     }
-  })
-}, [elements])
+  }
+
+
+  // useEffect(() => {
+  //   if (cart.payment_collection?.status === "authorized") {
+  //     onPaymentCompleted()
+  //   }
+  // }, [cart.payment_collection?.status])
 
   return (
     <>
@@ -186,7 +158,7 @@ useEffect(() => {
         isLoading={submitting}
         data-testid={dataTestId}
       >
-        Confirmer la commande
+        Place order
       </Button>
       <ErrorMessage
         error={errorMessage}

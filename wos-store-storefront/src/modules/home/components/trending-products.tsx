@@ -16,6 +16,8 @@ type VariantWithPrices = HttpTypes.StoreProductVariant & {
 const TrendingProducts = ({ products, region }: Props) => {
     if (!products.length) return null
 
+    console.log("Voici le product que j'affiche : ", products)
+
 
     return (
         <section className="mb-12">
@@ -24,8 +26,9 @@ const TrendingProducts = ({ products, region }: Props) => {
                     <h2 className="font-semibold text-3xl font-bold">Tendances</h2>
                 </div>
 
-                <ul className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-12 sm:gap-y-16 lg:gap-y-24">
+                <ul className="grid grid-cols-4 small:grid-cols-3 gap-x-6 gap-y-24 small:gap-y-36">
                     {products.map((product) => {
+                        console.log("VOici le produit à chaque fois : ", product)
                         const cheapestVariant = (product.variants ?? [])
                             .map(v => v as VariantWithPrices & { calculated_price?: { calculated_amount: number } })
                             .reduce<{ variant: VariantWithPrices | null; minAmount: number }>(
@@ -38,6 +41,13 @@ const TrendingProducts = ({ products, region }: Props) => {
                                 },
                                 { variant: null, minAmount: Infinity }
                             )
+
+                        console.log("Voici le cheapest Variant : ", cheapestVariant)
+
+                        if (cheapestVariant.variant) {
+                            // cheapestVariant.variant est celui avec le prix le plus bas
+                            console.log("Variant avec le prix minimum", cheapestVariant.variant)
+                        }
 
                         return (
                             <li key={product.id}>

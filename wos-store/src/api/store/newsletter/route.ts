@@ -19,6 +19,7 @@ export async function OPTIONS() {
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     try {
+        console.log("Newsletter POST request received");
 
         const { email } = req.body as { email: string };
 
@@ -49,6 +50,8 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
             unsubscribed: false,
             audienceId: process.env.RESEND_AUDIENCE_ID || '5cd7e419-f1b1-45b2-b408-d5e4c9e73a34',
         });
+
+        console.log(`Newsletter subscription successful for: ${email}`);
 
         res.setHeader("Access-Control-Allow-Origin", process.env.STORE_CORS?.split(",")[0] || "http://localhost:8000");
         return res.status(200).json({ message: "Inscription réussie à la newsletter" });

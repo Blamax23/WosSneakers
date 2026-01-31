@@ -31,6 +31,8 @@ const Carousel = ({ products, region }: CarouselProps) => {
   return (
     <div ref={sliderRef} className="keen-slider">
       {products.map((product) => {
+
+        console.log("VOici le produit à chaque fois : ", product)
         const cheapestVariant = (product.variants ?? [])
           .map(v => v as VariantWithPrices & { calculated_price?: { calculated_amount: number } })
           .reduce<{ variant: VariantWithPrices | null; minAmount: number }>(
@@ -43,6 +45,13 @@ const Carousel = ({ products, region }: CarouselProps) => {
             },
             { variant: null, minAmount: Infinity }
           )
+
+        console.log("Voici le cheapest Variant : ", cheapestVariant)
+
+        if (cheapestVariant.variant) {
+          // cheapestVariant.variant est celui avec le prix le plus bas
+          console.log("Variant avec le prix minimum", cheapestVariant.variant)
+        }
         return (
           <div className="keen-slider__slide" key={product.id}>
             <ProductPreview product={{ ...product, cheapestVariant }} region={region} isFeatured />

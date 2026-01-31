@@ -134,6 +134,7 @@ export function generateInvoiceTable(
   }
 
   if (order.total != (initial_total_amount + (order.shipping_subtotal as BigNumber).numeric)) {
+    console.log("Hey : ", order.items?.[0].adjustments);
     let code = order.items?.[0].adjustments?.[0].code;
     let reduc = new BigNumber((order.total as BigNumber).numeric - (initial_total_amount + (order.shipping_subtotal as BigNumber).numeric));
     generateTableRow(

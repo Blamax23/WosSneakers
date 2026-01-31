@@ -9,17 +9,19 @@ const notificationService = new BrevoNotificationService()
 // Appliquer CORS à cette route
 sendNotificationRouter.use(
     cors({
-        origin: "http://localhost:8000",
+        origin: "http://localhost:8000", // whitelist de ton front
         methods: ["POST", "OPTIONS"],
         allowedHeaders: ["Content-Type", "x-publishable-api-key"],
     })
 )
 
+// Gérer aussi manuellement la réponse au preflight OPTIONS
 sendNotificationRouter.options('/send-notification', (req, res) => {
     res.sendStatus(200)
 })
 
 sendNotificationRouter.post('/send-notification', async (req, res) => {
+    console.log('Headers reçus :', req.headers) // Ajoute ça temporairement
     const apiKey = req.headers['x-publishable-api-key']
     const { event, to, data } = req.body
 

@@ -26,6 +26,7 @@ export function Pagination({
     params.set("page", newPage.toString())
     router.push(`${pathname}?${params.toString()}`)
   }
+  console.log("here")
 
   // Function to render a page button
   const renderPageButton = (

@@ -14,10 +14,6 @@ import {
   removeCartId,
   setAuthToken,
 } from "./cookies"
-import type { PasswordResetState } from "@modules/account/components/forgot-password"
-import type { ResetPasswordState } from "@modules/account/components/reset-password-form"
-import { ContactState } from "@modules/contact/ContactPage"
-
 
 export const retrieveCustomer =
   async (): Promise<HttpTypes.StoreCustomer | null> => {
@@ -61,72 +57,6 @@ export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
   revalidateTag(cacheTag)
 
   return updateRes
-}
-
-export const updateCustomerPassword = async (
-  _currentState: Record<string, unknown>,
-  formData: FormData
-): Promise<any> => {
-  const oldPassword = formData.get("old_password") as string
-  const newPassword = formData.get("new_password") as string
-  const confirmPassword = formData.get("confirm_password") as string
-
-  // Validation côté client
-  if (!oldPassword || !newPassword || !confirmPassword) {
-    return {
-      success: false,
-      error: "Tous les champs sont requis",
-    }
-  }
-
-  if (newPassword !== confirmPassword) {
-    return {
-      success: false,
-      error: "Les nouveaux mots de passe ne correspondent pas",
-    }
-  }
-
-  if (newPassword.length < 8) {
-    return {
-      success: false,
-      error: "Le nouveau mot de passe doit contenir au moins 8 caractères",
-    }
-  }
-
-  const headers = {
-    ...(await getAuthHeaders()),
-  }
-
-  try {
-    const response = await sdk.client.fetch(`/store/custom/update-password`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-      },
-      body: {
-        old_password: oldPassword,
-        new_password: newPassword,
-      },
-    }) as { message?: string } | null
-
-    if (!response || response.message) {
-      return {
-        success: true,
-        error: null,
-      }
-    }
-
-    return {
-      success: true,
-      error: null,
-    }
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || "Erreur lors de la mise à jour du mot de passe",
-    }
-  }
 }
 
 export async function signup(_currentState: unknown, formData: FormData) {
@@ -245,6 +175,7 @@ export const addCustomerAddress = async (
     postal_code: formData.get("postal_code") as string,
     province: formData.get("province") as string,
     country_code: formData.get("country_code") as string,
+    phone: formData.get("phone") as string,
     is_default_billing: isDefaultBilling,
     is_default_shipping: isDefaultShipping,
   }
@@ -252,7 +183,6 @@ export const addCustomerAddress = async (
   const headers = {
     ...(await getAuthHeaders()),
   }
-
 
   return sdk.store.customer
     .createAddress(address, {}, headers)
@@ -329,164 +259,3 @@ export const updateCustomerAddress = async (
       return { success: false, error: err.toString() }
     })
 }
-
-export async function updateCustomerEmail(
-  _currentState: Record<string, unknown>,
-  formData: FormData
-) {
-  const email = formData.get("email") as string
-
-  if (!email) {
-    return { success: false, error: "L'email est requis" }
-  }
-
-  try {
-    const headers = {
-      "Content-Type": "application/json",
-      "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
-      ...(await getAuthHeaders()),
-    }
-
-    const response = await fetch("http://localhost:9000/store/custom/update-email", {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ email }),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Erreur lors de la mise à jour")
-    }
-
-    revalidateTag("customer")
-
-    return { success: true, error: null }
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || "Erreur lors de la mise à jour de l'email",
-    }
-  }
-}
-
-export async function requestPasswordReset(
-  _state: PasswordResetState,
-  formData: FormData
-) {
-  const email = formData.get("email") as string
-
-  if (!email) {
-    return { success: false, error: "L'email est requis" }
-  }
-
-  sdk.auth.resetPassword("customer", "emailpass", {
-    identifier: email,
-  })
-
-  return { success: true }
-}
-
-export async function resetPassword(
-  _state: ResetPasswordState,
-  formData: FormData
-): Promise<ResetPasswordState> {
-  const email = formData.get("email") as string
-  const token = formData.get("token") as string
-  const newPassword = formData.get("new_password") as string
-  const confirmPassword = formData.get("confirm_password") as string
-
-  if (!email || !token || !newPassword || !confirmPassword) {
-    return { error: "Tous les champs sont requis" }
-  }
-
-  if (newPassword !== confirmPassword) {
-    return { error: "Les mots de passe ne correspondent pas" }
-  }
-
-  if (newPassword.length < 8) {
-    return { error: "Mot de passe trop court" }
-  }
-
-  await sdk.auth.updateProvider("customer", "emailpass", {
-      email,
-      password: newPassword,
-    }, token)
-    .then(() => {
-      
-    })
-    .catch((error) => {
-      console.error("❌ Erreur mise à jour mot de passe:", error)
-      throw error
-    })
-
-  return { success: true }
-}
-
-export async function deleteAccount() {
-  
-  try {
-    const authHeaders = await getAuthHeaders()
-    
-    const headers = {
-      "Content-Type": "application/json",
-      ...authHeaders,
-    }
-
-    const res = await fetch("http://localhost:9000/account/self-delete", {
-      method: "POST",
-      headers,
-    })
-    if (!res.ok) {
-      const errorText = await res.text()
-      console.error("❌ Erreur response:", errorText)
-      throw new Error(`Delete failed: ${errorText}`)
-    }
-
-    const data = await res.json()
-  
-    await removeAuthToken()
-    await removeCartId()
-    
-    const customerCacheTag = await getCacheTag("customers")
-    revalidateTag(customerCacheTag)
-    
-    const cartCacheTag = await getCacheTag("carts")
-    revalidateTag(cartCacheTag)
-    return data
-  } catch (error: any) {
-    console.error("❌ Erreur lors de la suppression:", error)
-    throw error
-  }
-}
-
-export const sendContactMessage = async (
-  _state: ContactState,
-  formData: FormData
-): Promise<ContactState> => {
-  const name = formData.get("name") as string
-  const email = formData.get("email") as string
-  const message = formData.get("message") as string
-
-  try {
-    const headers = {
-      "Content-Type": "application/json",
-      "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
-      ...(await getAuthHeaders()),
-    }
-    const res = await fetch("http://localhost:9000/store/contact", {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify({ name, email, message }),
-    })
-
-    if (!res.ok) {
-      const error = await res.json()
-      throw new Error(error.message || "Erreur lors de l'envoi du message")
-    }
-
-    return { success: true }
-  } catch (error: any) {
-    return { success: false, error: error.message || "Erreur lors de l'envoi du message" }
-  }
-}
-

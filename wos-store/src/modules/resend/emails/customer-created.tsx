@@ -11,10 +11,7 @@ import {
   Head,
   Preview,
   Body,
-  Link,
 } from "@react-email/components"
-import { EmailFonts } from "../lib/font"
-import Footer from "../lib/footer"
 
 type WelcomeEmailProps = {
   first_name?: string
@@ -25,24 +22,22 @@ function WelcomeEmailComponent({ first_name }: WelcomeEmailProps) {
     <Tailwind>
       <Html className="font-sans bg-gray-100">
         <Head />
-        <EmailFonts />
         <Preview>Bienvenue chez WOS Sneakers !</Preview>
         <Body className="bg-white my-10 mx-auto w-full max-w-2xl">
           {/* Header */}
           <Container className="p-6">
             <div className="w-full flex justify-center mb-4">
               <a
-                  href="https://wossneakers.fr/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center"
+                href="https://imgbb.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center"
               >
-                  <img
-                  src="https://wossneakers.fr/WosLogos/logoWosBlack.png"
+                <img
+                  src="https://i.ibb.co/qMLmLrrw/logo-Wos-Black.png"
                   alt="logo-Wos-Black"
-                  width="200"
-                  style={image}
-                  />
+                  className="w-24"
+                />
               </a>
             </div>
             <Heading className="text-2xl font-bold text-center text-gray-800">
@@ -50,7 +45,6 @@ function WelcomeEmailComponent({ first_name }: WelcomeEmailProps) {
             </Heading>
             <Text className="text-center text-gray-600 mt-2">
               Merci de t'être inscrit chez <strong>WOS Sneakers</strong>.<br />
-              Prêt à partir du bon pied ? <br />
               On est ravi de t'accueillir dans la team ! Prépare-toi à découvrir les meilleures paires 🔥
             </Text>
           </Container>
@@ -64,16 +58,20 @@ function WelcomeEmailComponent({ first_name }: WelcomeEmailProps) {
               Découvrir la boutique
             </a>
           </Container>
-          <Footer />
+
+          {/* Footer */}
+          <Section className="bg-gray-50 p-6 mt-10">
+            <Text className="text-center text-gray-500 text-sm">
+              Si tu as des questions, n'hésite pas à répondre à cet e-mail ou à nous contacter à blamaxsolutions@gmail.com
+            </Text>
+            <Text className="text-center text-gray-400 text-xs mt-4">
+              © {new Date().getFullYear()} WOS, Inc. Tous droits réservés.
+            </Text>
+          </Section>
         </Body>
       </Html>
     </Tailwind>
   )
-}
-
-const image= {
-    display: "block",
-    margin: "0 auto 20px",
 }
 
 export const customerCreatedEmail = (props: WelcomeEmailProps) => (

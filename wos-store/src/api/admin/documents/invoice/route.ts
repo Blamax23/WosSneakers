@@ -125,6 +125,7 @@ export const GET = async (
       );
       const metadata = orderDto.items?.[0].adjustments?.[0].code
 
+      console.log("🔥 Premier price :", metadata)
       const result = await documentsModuleService.getInvoice(orderDto, orderWithInvoice.document_invoice.id, includeBuffer !== undefined);
       res.status(200).json(result);
     } else {

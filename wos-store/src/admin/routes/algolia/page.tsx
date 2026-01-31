@@ -25,7 +25,7 @@ const AlgoliaPage = () => {
     return (
         <Container className="divide-y p-0">
         <div className="flex items-center justify-between px-6 py-4">
-            <Heading level="h2">Synchronisation Algolia</Heading>
+            <Heading level="h2">Algolia Sync</Heading>
         </div>
         <div className="px-6 py-8">
             <Button 
@@ -33,7 +33,7 @@ const AlgoliaPage = () => {
             onClick={handleSync}
             isLoading={isPending}
             >
-            Synchroniser les données vers Algolia
+            Sync Data to Algolia
             </Button>
         </div>
         </Container>

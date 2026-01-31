@@ -22,17 +22,17 @@ const StoreTemplate = ({
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
 
+  console.log("Price dans le StoreTemplate", price)
+
   return (
     <div
-      className="flex flex-col gap-y-10 lg:flex-row lg:items-start lg:gap-x-12 py-6 content-container"
+      className="flex flex-col small:flex-row small:items-start py-6 content-container"
       data-testid="category-container"
     >
-      <div className="w-full lg:flex-[0_0_25%]">
-        <RefinementList sortBy={sort} />
-      </div>
-      <div className="w-full lg:flex-[0_0_75%]">
+      <RefinementList sortBy={sort} />
+      <div className="w-full">
         <div className="mb-8 text-2xl-semi">
-          <h1 data-testid="store-page-title">Tous nos produits</h1>
+          <h1 data-testid="store-page-title">All products</h1>
         </div>
         <Suspense fallback={<SkeletonProductGrid />}>
           <PaginatedProducts

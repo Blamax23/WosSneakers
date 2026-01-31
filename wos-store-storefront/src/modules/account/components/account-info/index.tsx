@@ -22,7 +22,7 @@ const AccountInfo = ({
   isSuccess,
   isError,
   clearState,
-  errorMessage = "Une erreur est survenue. Veuillez réessayer.",
+  errorMessage = "An error occurred, please try again",
   children,
   'data-testid': dataTestid
 }: AccountInfoProps) => {
@@ -55,7 +55,6 @@ const AccountInfo = ({
           </div>
         </div>
         <div>
-          {label != "E-mail" && (
           <Button
             variant="secondary"
             className="w-[100px] min-h-[25px] py-1"
@@ -66,7 +65,6 @@ const AccountInfo = ({
           >
             {state ? "Annuler" : "Modifier"}
           </Button>
-          )}
         </div>
       </div>
 
@@ -84,11 +82,7 @@ const AccountInfo = ({
           data-testid="success-message"
         >
           <Badge className="p-2 my-4" color="green">
-            {label === "Adresse de facturation" ? (
-              <span>{label} modifiée avec succès</span>
-            ) : (
-              <span>{label} modifié avec succès</span>
-            )}
+            <span>{label} modifiée avec succès</span>
           </Badge>
         </Disclosure.Panel>
       </Disclosure>
