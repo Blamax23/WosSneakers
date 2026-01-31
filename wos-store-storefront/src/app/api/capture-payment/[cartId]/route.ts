@@ -27,8 +27,8 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
     if (
         !paymentSession ||
         paymentSession.data.client_secret !== paymentIntentClientSecret ||
-        !["pending", "succeeded"].includes(redirectStatus) ||
-        !["pending", "authorized"].includes(paymentSession.status)
+        !["succeeded", "processing"].includes(redirectStatus) ||
+        !["pending", "authorized", "captured"].includes(paymentSession.status as any)
     ) {
         return NextResponse.redirect(
             `${origin}/${countryCode}/checkout?step=payment&error=payment_failed`
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
 
     const order = await placeOrder(cartId)
 
-    if (order!) {
+    if (order) {
         return NextResponse.redirect(
             `${origin}/${countryCode}/order/${order.id}/confirmed`
         )
@@ -50,13 +50,21 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
         const { cartId } = await params
         const body = await req.json()
 
-        // Faire l'appel vers votre backend Medusa pour mettre à jour le panier
-        const medusaUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000'
+        // Appeler Medusa pour mettre à jour le panier.
+        // On ajoute la publishable key (v2) pour éviter les erreurs en local/prod.
+        const cleanEnv = (v?: string) =>
+            (v || "").trim().replace(/^['\"]|['\"]$/g, "")
+
+        const medusaUrl = cleanEnv(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL) ||
+            cleanEnv(process.env.MEDUSA_BACKEND_URL) ||
+            'http://localhost:9000'
+        const publishableKey = cleanEnv(process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY)
 
         const response = await fetch(`${medusaUrl}/store/carts/${cartId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                ...(publishableKey ? { 'x-publishable-api-key': publishableKey } : {}),
             },
             body: JSON.stringify(body),
         })

@@ -33,15 +33,7 @@ class SendcloudProviderService extends AbstractFulfillmentProviderService {
 
     this.logger_ = logger
     this.options_ = options
-
-    console.log("Options : ", options)
-
-    // Import et instanciation manuelle pour tester
-    const SendcloudService = require("../sendcloud/service").default
-    this.sendcloudService_ = new SendcloudService(
-      { logger },
-      options
-    )
+    this.sendcloudService_ = sendcloudService
   }
 
   static identifier = "my-fulfillment"

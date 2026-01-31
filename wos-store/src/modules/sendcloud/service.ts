@@ -50,11 +50,8 @@ class SendcloudService {
       throw new Error("SendCloud API credentials are required")
     }
 
-    console.log("PUBLIC SENDCLOUD PUBLIC KEY : ", process.env.NEXT_PUBLIC_SENDCLOUD_PUBLIC_KEY)
-    console.log("PUBLIC SENDCLOUD PRIVATE KEY : ", process.env.NEXT_PUBLIC_SENDCLOUD_PRIVATE_KEY)
-
-    this.apiKey_ = process.env.NEXT_PUBLIC_SENDCLOUD_PUBLIC_KEY || options.sendcloudApiKey
-    this.apiSecret_ = process.env.NEXT_PUBLIC_SENDCLOUD_PRIVATE_KEY || options.sendcloudApiSecret
+    this.apiKey_ = options.sendcloudApiKey
+    this.apiSecret_ = options.sendcloudApiSecret
     this.baseUrl_ = "https://panel.sendcloud.sc/api/v2"
   }
 
@@ -105,37 +102,56 @@ class SendcloudService {
       throw new Error(`Invalid country code: ${order.shipping_address.country_code}`);
     }
 
+    // Check for service point data in metadata
+    const sendcloudMetadata = order?.metadata?.sendcloud || order?.cart?.metadata?.sendcloud || {};
+
     const payload = {
       parcel: {
         name: `${order.shipping_address.first_name} ${order.shipping_address.last_name}`,
+        company_name: order.shipping_address.company || '',
         address: order.shipping_address.address_1,
-        house_number: order.shipping_address.house_number || '', // 👈 Add this line
+        house_number: order.shipping_address.address_2 || '',
         postal_code: order.shipping_address.postal_code,
         city: order.shipping_address.city,
         country: countryCode,
-        email: order.email,
+        email: order.email || order.shipping_address?.email || order.customer?.email,
         phone: order.shipping_address.phone || '',
-        weight: (order.items?.reduce((s: number, itm: any) => s + (itm.variant.weight || 0), 0)).toString() || "2.0",
+        
+        // Point relais
+        to_service_point: sendcloudMetadata.to_service_point,
+        to_post_number: sendcloudMetadata.to_post_number,
+        service_point: sendcloudMetadata.service_point,
+        
+        // Identifiants
         order_number: order.id,
-        company_name: order.shipping_address.company || '',
-        address_2: order.shipping_address.address_2 || '',
-        shipment: {
-          id: order.shipping_methods[0].data.shipment_id
-        },
+        weight: (order.items?.reduce((s: number, itm: any) => s + (itm.variant.weight || 0), 0)).toString() || "2.0",
+        
+        // Options spécifiques
+        contract: process.env.SENDCLOUD_CONTRACT_ID ? { id: Number(process.env.SENDCLOUD_CONTRACT_ID) } : undefined,
+        shipment: order.shipping_methods?.[0]?.data?.shipment_id ? 
+          { id: Number(order.shipping_methods[0].data.shipment_id) } : undefined,
+
+        // Détails des articles
         parcel_items: order.items?.map((item: any) => ({
           description: item.title,
-          quantity: item.detail.quantity,
-          weight: item.variant.weight, // grammes
+          quantity: item.quantity,
+          weight: item.variant?.weight || 0,
           value: item.unit_price,
-          hs_code: item.variant.product.hs_code, // ou une valeur réelle si tu l’as
-          origin_country: (order.shipping_address?.country_code || 'fr').toUpperCase(),
+          hs_code: item.variant?.product?.hs_code,
+          origin_country: countryCode,
           sku: item.variant?.sku || ''
         }))
       }
     }
 
-
     console.log("📦 Creating parcel with payload:", payload)
+
+    // Remove undefined nested keys
+    Object.keys(payload.parcel).forEach((k) => {
+      if (payload.parcel[k] === undefined) {
+        delete payload.parcel[k];
+      }
+    });
 
     const data = await this.makeRequest({
       method: 'post',
@@ -186,10 +202,9 @@ class SendcloudService {
   }
 
   async getTrackingLink(labelId: string): Promise<string> {
-
     const data = await this.makeRequest({
       method: 'get',
-      url: `/tracking/{labelId}`
+      url: `/labels/${encodeURIComponent(labelId)}/tracking_url`
     })
 
     return data.tracking_url || ''
@@ -207,7 +222,7 @@ class SendcloudService {
   async getShippingMethods(): Promise<any> {
     return await this.makeRequest({
       method: 'get',
-      url: '/shipping_methods' // ou l’endpoint Sendcloud pour les transporteurs
+      url: '/shipping_methods'
     })
   }
 }

@@ -12,6 +12,7 @@ import Divider from "@modules/common/components/divider"
 import MedusaRadio from "@modules/common/components/radio"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
+import SendcloudPickup from "./SendcloudPickup"
 
 const PICKUP_OPTION_ON = "__PICKUP_ON"
 const PICKUP_OPTION_OFF = "__PICKUP_OFF"
@@ -237,7 +238,9 @@ const Shipping: React.FC<ShippingProps> = ({
                         <span className="text-base-regular">
                           Retrait en magasin
                         </span>
-                      </div>
+                      
+<SendcloudPickup current={(cart as any)?.metadata?.sendcloud} />
+</div>
                       <span className="justify-self-end text-ui-fg-base">
                         -
                       </span>

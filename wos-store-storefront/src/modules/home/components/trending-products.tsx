@@ -26,7 +26,7 @@ const TrendingProducts = ({ products, region }: Props) => {
                     <h2 className="font-semibold text-3xl font-bold">Tendances</h2>
                 </div>
 
-                <ul className="grid grid-cols-4 small:grid-cols-3 gap-x-6 gap-y-24 small:gap-y-36">
+                <ul className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-12 sm:gap-y-16 lg:gap-y-24">
                     {products.map((product) => {
                         console.log("VOici le produit à chaque fois : ", product)
                         const cheapestVariant = (product.variants ?? [])

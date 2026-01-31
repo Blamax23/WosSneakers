@@ -33,14 +33,19 @@ const Payment = ({
 
   const stripeReady = useContext(StripeContext)
 
+  // Medusa sessions don't always use the same status value. For Stripe,
+  // the reliable signal is data.client_secret.
   const activeSession = cart.payment_collection?.payment_sessions?.find(
-    (paymentSession: any) => paymentSession.status === "pending"
+    (paymentSession: any) =>
+      paymentSession?.provider_id?.includes("stripe") &&
+      !!paymentSession?.data?.client_secret
   )
   const paidByGiftcard =
     cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
 
   const paymentReady =
-    (activeSession && cart?.shipping_methods.length !== 0) || paidByGiftcard
+    (activeSession && (cart?.shipping_methods?.length ?? 0) !== 0) ||
+    paidByGiftcard
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -79,13 +84,13 @@ const Payment = ({
 
     try {
       if (!stripe || !elements) {
-        setError("Payment processing not ready. Please try again.")
+        setError("Le paiement n'est pas prêt. Veuillez réessayer dans un instant.")
         return
       }
 
       await elements.submit().catch((err) => {
         console.error(err)
-        setError(err.message || "An error occurred with the payment")
+        setError(err.message || "Une erreur est survenue avec le paiement.")
         return
       })
 
@@ -96,7 +101,7 @@ const Payment = ({
           await updateCartPaymentMethod(cart.id, selectedPaymentMethod)
         } catch (err) {
           console.error("Failed to update payment method in cart:", err)
-          setError("Failed to save payment method. Please try again.")
+          setError("Impossible d'enregistrer le moyen de paiement. Veuillez réessayer.")
           return
         }
       }
@@ -127,7 +132,7 @@ const Payment = ({
       router.refresh() // ← ça va relancer le fetch côté server dans Next.js
     } catch (err) {
       console.error("Failed to initialize Stripe session:", err)
-      setError("Failed to initialize payment. Please try again.")
+      setError("Impossible d'initialiser le paiement. Veuillez réessayer.")
     } finally {
       setIsInitializingStripe(false)
     }
@@ -161,10 +166,11 @@ const Payment = ({
   }, [cart?.metadata?.selected_payment_method])
 
   // Condition d'affichage plus stricte
-  const shouldShowPaymentElement = !paidByGiftcard &&
-    availablePaymentMethods?.length > 0 &&
+  const shouldShowPaymentElement =
+    !paidByGiftcard &&
+    (availablePaymentMethods?.length ?? 0) > 0 &&
     stripeReady &&
-    activeSession &&
+    !!activeSession &&
     !isInitializingStripe
 
   return (
@@ -180,7 +186,7 @@ const Payment = ({
             }
           )}
         >
-          Payment
+          Paiement
           {!isOpen && paymentReady && <CheckCircleSolid />}
         </Heading>
         {!isOpen && paymentReady && (
@@ -190,7 +196,7 @@ const Payment = ({
               className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
               data-testid="edit-payment-button"
             >
-              Edit
+              Modifier
             </button>
           </Text>
         )}
@@ -218,13 +224,13 @@ const Payment = ({
           {paidByGiftcard && (
             <div className="flex flex-col w-1/3">
               <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                Payment method
+                Moyen de paiement
               </Text>
               <Text
                 className="txt-medium text-ui-fg-subtle"
                 data-testid="payment-method-summary"
               >
-                Gift card
+                Carte cadeau
               </Text>
             </div>
           )}
@@ -240,15 +246,12 @@ const Payment = ({
             onClick={handleSubmit}
             isLoading={isLoading}
             disabled={
-              !stripeComplete ||
-              !stripe ||
-              !elements ||
-              (!selectedPaymentMethod && !paidByGiftcard) ||
+              (!paidByGiftcard && (!stripeComplete || !stripe || !elements)) ||
               isInitializingStripe
             }
             data-testid="submit-payment-button"
           >
-            Continue to review
+            Continuer
           </Button>
         </div>
 
@@ -257,7 +260,7 @@ const Payment = ({
             <div className="flex items-start gap-x-1 w-full">
               <div className="flex flex-col w-1/3">
                 <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                  Payment method
+                  Moyen de paiement
                 </Text>
                 <Text
                   className="txt-medium text-ui-fg-subtle"
@@ -269,7 +272,7 @@ const Payment = ({
               </div>
               <div className="flex flex-col w-1/3">
                 <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                  Payment details
+                  Détails de paiement
                 </Text>
                 <div
                   className="flex gap-2 txt-medium text-ui-fg-subtle items-center"
@@ -280,20 +283,20 @@ const Payment = ({
                       <CreditCard />
                     )}
                   </Container>
-                  <Text>Another step will appear</Text>
+                  <Text>Les détails apparaîtront après validation</Text>
                 </div>
               </div>
             </div>
           ) : paidByGiftcard ? (
             <div className="flex flex-col w-1/3">
               <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                Payment method
+                Moyen de paiement
               </Text>
               <Text
                 className="txt-medium text-ui-fg-subtle"
                 data-testid="payment-method-summary"
               >
-                Gift card
+                Carte cadeau
               </Text>
             </div>
           ) : null}

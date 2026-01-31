@@ -9,7 +9,7 @@ module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     http: {
-      storeCors: "http://localhost:8000",
+      storeCors: process.env.STORE_CORS || "http://localhost:8000,http://127.0.0.1:8000",
       adminCors: process.env.ADMIN_CORS!,
       authCors: process.env.AUTH_CORS!,
       jwtSecret: process.env.JWT_SECRET || "supersecret",
@@ -30,8 +30,8 @@ module.exports = defineConfig({
     {
       resolve: `./src/modules/sendcloud`,
       options: {
-        sendcloudApiKey: process.env.NEXT_PUBLIC_SENDCLOUD_PUBLIC_KEY,
-        sendcloudApiSecret: process.env.NEXT_PUBLIC_SENDCLOUD_PRIVATE_KEY,
+        sendcloudApiKey: process.env.SENDCLOUD_PUBLIC_KEY,
+        sendcloudApiSecret: process.env.SENDCLOUD_PRIVATE_KEY,
       },
 
     },
@@ -64,8 +64,8 @@ module.exports = defineConfig({
             resolve: "./src/modules/sendcloud-provider",
             id: "my-fulfillment",
             options: {
-              sendcloudApiKey: process.env.NEXT_PUBLIC_SENDCLOUD_PUBLIC_KEY,
-              sendcloudApiSecret: process.env.NEXT_PUBLIC_SENDCLOUD_PRIVATE_KEY,
+              sendcloudApiKey: process.env.SENDCLOUD_PUBLIC_KEY,
+              sendcloudApiSecret: process.env.SENDCLOUD_PRIVATE_KEY,
             },
           },
           // {
@@ -109,14 +109,15 @@ module.exports = defineConfig({
         ],
       },
     },
-    {
-      resolve: "./src/modules/algolia",
-      options: {
-        appId: process.env.ALGOLIA_APP_ID!,
-        apiKey: process.env.ALGOLIA_API_KEY!,
-        productIndexName: process.env.ALGOLIA_PRODUCT_INDEX_NAME!,
-      },
-    },
+// {
+//   resolve: "./src/modules/algolia",
+//   options: {
+//     appId: process.env.ALGOLIA_APP_ID!,
+//     apiKey: process.env.ALGOLIA_API_KEY!,
+//     productIndexName: process.env.ALGOLIA_PRODUCT_INDEX_NAME!,
+//   },
+// },
+
     {
       resolve: "./src/modules/documents",
       options: {}

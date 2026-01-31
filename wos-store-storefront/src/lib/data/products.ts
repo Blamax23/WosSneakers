@@ -75,8 +75,7 @@ export const listProducts = async ({
             ...queryParams,
           },
           headers,
-          next,
-          cache: "force-cache",
+          cache: "no-store",
         }
       ),
       8000 // 8 seconds timeout
@@ -119,12 +118,12 @@ export const listTrendingProducts = async (region: StoreRegion) => {
         {
           method: "GET",
           query: {
-            fields: "*variants,*variants.prices,*metadata,*calculated_price",
-            region_id: region.id
-          },
+          fields: "*variants.calculated_price,*variants.prices,*metadata,*tags",
+          region_id: region.id,
+              },
+
           headers,
-          next,
-          cache: "force-cache",
+          cache: "no-store",
         }
       ),
       8000

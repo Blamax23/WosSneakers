@@ -35,6 +35,14 @@ export default function ProductActions({
   const [isAdding, setIsAdding] = useState(false)
   const countryCode = useParams().countryCode as string
 
+  const hasSelectedOptions = useMemo(
+    () =>
+      Object.values(options).some(
+        (value) => typeof value !== "undefined" && value !== ""
+      ),
+    [options]
+  )
+
   // If there is only 1 variant, preselect the options
   console.log("product", product)
   useEffect(() => {
@@ -172,25 +180,25 @@ export default function ProductActions({
 
         <ProductPrice product={product} variant={selectedVariant} />
         <Button
-          onClick={handleAddToCart}
-          disabled={
-            !inStock ||
-            !selectedVariant ||
-            !!disabled ||
-            isAdding ||
-            !isValidVariant
-          }
-          variant="primary"
-          className="w-full h-10"
-          isLoading={isAdding}
-          data-testid="add-product-button"
-        >
-          {!selectedVariant && !options
-            ? "Choisissez une option"
-            : !inStock || !isValidVariant
-            ? "Rupture de stock"
-            : "Ajouter au panier"}
-        </Button>
+  onClick={handleAddToCart}
+  disabled={
+    !selectedVariant ||
+    !isValidVariant ||
+    !inStock ||
+    !!disabled ||
+    isAdding
+  }
+  variant="primary"
+  className="w-full h-10"
+  isLoading={isAdding}
+  data-testid="add-product-button"
+>
+  {!selectedVariant || !isValidVariant
+    ? "Sélectionnez une taille"
+    : !inStock
+    ? "Rupture de stock"
+    : "Ajouter au panier"}
+</Button>
         <MobileActions
           product={product}
           variant={selectedVariant}
