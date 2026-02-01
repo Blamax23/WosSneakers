@@ -218,10 +218,10 @@ const useOrderTableColumns = () => {
       {
         Header: () => (
           <Grid container justifyContent="flex-end" alignItems="flex-end" spacing={1}>
-            <Grid item>
+            <Grid>
               <TooltipProvider>
                 <Tooltip content={
-                  <Grid item>
+                  <Grid>
                     <Text size="small">We do not store documents. </Text>
                     <Link fontSize={12} href='https://github.com/RSC-Labs/medusa-documents?tab=readme-ov-file#what-means-we-do-not-store-documents'>
                       Learn more what it means.
@@ -232,14 +232,14 @@ const useOrderTableColumns = () => {
                 </Tooltip>
               </TooltipProvider>
             </Grid>
-            <Grid item>Actions</Grid>
+            <Grid>Actions</Grid>
           </Grid>
         ),
         id: "actions",
         Cell: ({ row }) => {
           return (
             <Grid container justifyContent={'flex-end'}>
-              <Grid item>
+              <Grid>
                 <ActionsDropdown
                   order={row.original}
                   updateInvoiceNumber={updateInvoiceNumber}

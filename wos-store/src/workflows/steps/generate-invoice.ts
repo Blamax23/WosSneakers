@@ -9,7 +9,7 @@ export const generateInvoiceStep = createStep(
     "generate-invoice-step",
     async ({ order }: GenerateInvoiceInput, { container }) => {
         try {
-            const documentsService = container.resolve(DOCUMENTS_MODULE)
+            const documentsService: any = container.resolve(DOCUMENTS_MODULE)
             
             const result = await documentsService.generateInvoiceForOrder(order as any)
             

@@ -79,7 +79,7 @@ export async function POST(
           app_metadata: {
             customer_id: customerId,
           },
-        },
+        } as any,
       })
       
       const ids = authIdsByCustomerId.data.map((item: any) => item.id)
@@ -111,7 +111,7 @@ export async function POST(
           app_metadata: {
             customer_id: null,
           },
-        },
+        } as any,
       })
       
       if (orphanedIdentities.data && orphanedIdentities.data.length > 0) {

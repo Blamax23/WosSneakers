@@ -40,12 +40,12 @@ const LogoFields = ({ logoSource, register } : {logoSource?: string, register: a
 
   return (
     <Grid container direction={'column'} spacing={1}>
-      <Grid item>
+      <Grid>
         <Label size="small">
           Link to logo
         </Label>
       </Grid>
-      <Grid item>
+      <Grid>
         <Input 
           placeholder='https://raw.githubusercontent.com/RSC-Labs/medusa-store-analytics/main/docs/store-analytics-logo.PNG'
           {...register}
@@ -54,9 +54,9 @@ const LogoFields = ({ logoSource, register } : {logoSource?: string, register: a
         />
       </Grid>
       <Grid container justifyContent={'center'} alignContent={'center'} marginTop={5}>
-        <Grid item>
+        <Grid>
           <div style={{ height: '200px', width: '300px', overflow: 'hidden', border: imgLoaded ? undefined : "1px solid rgba(0, 0, 0, 0.12)" }}>
-            {logoUrl && isValidUrl && <Grid item textAlign={'center'}>
+            {logoUrl && isValidUrl && <Grid sx={{ textAlign: 'center' }}>
               <img src={logoUrl} alt="Preview" style={{ maxWidth: 300, maxHeight: 200 }} onLoad={handleOnLoad} onError={handleImageError} />
             </Grid>
             }
@@ -112,7 +112,7 @@ const LogoForm = ({ logoSource, setOpenModal } : {logoSource?: string, setOpenMo
     <form>
       <Grid container direction={'column'} rowSpacing={4} paddingTop={8}>
         <LogoFields logoSource={logoSource} register={register('logoSource')}/>
-        <Grid item>
+        <Grid>
           <Button
             type="submit"
             variant={'primary'}
@@ -166,20 +166,20 @@ const LogoModalDetails = ({ setOpenModal }) => {
   return (
     <FocusModal.Body>
       <Grid container direction={'column'} alignContent={'center'} paddingTop={8}>
-        <Grid item>
+        <Grid>
           <Heading>Store logo</Heading>
         </Grid>
-        <Grid item>
+        <Grid>
           <Text>
             This logo will be used on your documents.
           </Text>
         </Grid>
-        <Grid item>
+        <Grid>
           <Text>
             Presence of logo on document depends on template.
           </Text>
         </Grid>
-        <Grid item>
+        <Grid>
           <LogoForm logoSource={data.settings && data.settings.storeLogoSource ? data.settings.storeLogoSource as string : undefined} setOpenModal={setOpenModal}/>
         </Grid>
       </Grid>

@@ -85,21 +85,21 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal } : {invoiceSetting
     <form>
       <Grid container direction={'column'} rowSpacing={4} paddingTop={8}>
         <Grid container direction={'column'} spacing={1} marginTop={2}>
-          <Grid item>
+          <Grid>
             <Grid container direction={'column'}>
-              <Grid item>
+              <Grid>
                 <Label size="small">
                   Number format
                 </Label>
               </Grid>
-              <Grid item>
+              <Grid>
                 <Label size='xsmall'>
                   {LABEL_MUST_FORMAT}
                 </Label>
               </Grid>
             </Grid>
           </Grid>
-          <Grid item>
+          <Grid>
             <Input 
               placeholder={INVOICE_NUMBER_PLACEHOLDER}
               defaultValue={invoiceSettings?.numberFormat ? invoiceSettings.numberFormat : INVOICE_NUMBER_PLACEHOLDER}
@@ -120,21 +120,21 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal } : {invoiceSetting
           </Grid>
         </Grid>
         <Grid container direction={'column'} spacing={1} marginTop={2}>
-          <Grid item>
+          <Grid>
             <Grid container direction={'column'}>
-              <Grid item>
+              <Grid>
                 <Label size="small">
                   Forced number
                 </Label>
               </Grid>
-              <Grid item>
+              <Grid>
                 <Label size='xsmall'>
                   {LABEL_INFO_FORCED}
                 </Label>
               </Grid>
             </Grid>
           </Grid>
-          <Grid item>
+          <Grid>
             <Input 
               defaultValue={invoiceSettings?.forcedNumber !== undefined &&  invoiceSettings.forcedNumber !== null 
                 ? invoiceSettings.forcedNumber : ''}
@@ -156,16 +156,16 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal } : {invoiceSetting
           </Grid>
         </Grid>
         <Grid container direction={'column'} spacing={1} marginTop={2}>
-          <Grid item>
+          <Grid>
             <Label size="small">
               Your next invoice number will be:
             </Label>
           </Grid>
-          {errors.formatNumber == undefined && errors.forcedNumber == undefined && error == undefined && <Grid item>
+          {errors.formatNumber == undefined && errors.forcedNumber == undefined && error == undefined && <Grid>
             <InvoiceSettingsDisplayNumber formatNumber={formatNumber} forcedNumber={forcedNumber !== undefined && forcedNumber !== null ? parseInt(forcedNumber) : undefined}/>
           </Grid>}
         </Grid>
-        <Grid item>
+        <Grid>
           <Button
             type="submit"
             variant={'primary'}
@@ -174,10 +174,10 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal } : {invoiceSetting
             Save
           </Button>
         </Grid>
-        {(errors.formatNumber || errors.forcedNumber) && <Grid item>
+        {(errors.formatNumber || errors.forcedNumber) && <Grid>
           <Alert variant="error">{errorText}</Alert>
         </Grid>}
-          {error && <Grid item>
+          {error && <Grid>
             <Alert variant="error">{error}</Alert>
           </Grid>}
       </Grid>
@@ -223,15 +223,15 @@ const InvoiceSettingsModalDetails = ({ setOpenModal }) => {
   return (
     <FocusModal.Body>
       <Grid container direction={'column'} alignContent={'center'} paddingTop={8}>
-        <Grid item>
+        <Grid>
           <Heading>Invoice settings</Heading>
         </Grid>
-        <Grid item>
+        <Grid>
           <Text>
             These settings will be applied for newly generated invoices.
           </Text>
         </Grid>
-        <Grid item>
+        <Grid>
           <InvoiceSettingsForm invoiceSettings={data?.settings} setOpenModal={setOpenModal}/>
         </Grid>
       </Grid>

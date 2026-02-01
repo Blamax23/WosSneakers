@@ -20,16 +20,14 @@ export default async function copyCartMetadataHandler({
 
         // Récupérer la commande avec le cart_id
         const orders = await remoteQuery({
-            order: {
-                __args: { filters: { id: data.id } },
-                id: true,
-                metadata: true,
-                // Dans Medusa v2, l'order n'a pas de cart_id direct
-                // On doit chercher le cart via une autre méthode
+            entryPoint: "order",
+            fields: ["id", "metadata"],
+            variables: {
+                filters: { id: data.id }
             }
         })
 
-        const order = orders.order?.[0] || orders?.[0]
+        const order = orders?.[0]
         if (!order) {
             console.log("⚠️ Order not found for metadata copy:", data.id)
             return
@@ -44,19 +42,16 @@ export default async function copyCartMetadataHandler({
         // Chercher le cart le plus récent pour ce client avec des métadonnées sendcloud
         // C'est un workaround car Medusa v2 ne garde pas le lien cart -> order directement
         const carts = await remoteQuery({
-            cart: {
-                __args: { 
-                    filters: { completed_at: { $ne: null } },
-                    order: { completed_at: "DESC" },
-                    take: 1
-                },
-                id: true,
-                metadata: true,
-                completed_at: true,
+            entryPoint: "cart",
+            fields: ["id", "metadata", "completed_at"],
+            variables: {
+                filters: { completed_at: { $ne: null } },
+                order: { completed_at: "DESC" },
+                take: 1
             }
         })
 
-        const cart = carts.cart?.[0] || carts?.[0]
+        const cart = carts?.[0]
         if (!cart?.metadata?.sendcloud) {
             console.log("⚠️ No recent cart with sendcloud metadata found")
             return

@@ -57,7 +57,7 @@ const InvoiceSettingsDisplayNumber = ({ formatNumber, forcedNumber } : {formatNu
 
   if (isLoading) {
     return (
-      <Grid item>
+      <Grid>
         <Input
           readOnly={true}
         />
@@ -66,7 +66,7 @@ const InvoiceSettingsDisplayNumber = ({ formatNumber, forcedNumber } : {formatNu
   }
 
   return (
-    <Grid item>
+    <Grid>
       <Input key={`display-number-${data.displayNumber}`}
         defaultValue={data.displayNumber}
         readOnly={true}

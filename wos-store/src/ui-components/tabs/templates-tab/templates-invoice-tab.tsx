@@ -67,7 +67,7 @@ const ViewExampleInvoice = ({kind} : {kind: InvoiceTemplateKind}) => {
   if (isLoading) {
     return (
       <Grid container justifyContent={'center'}>
-        <Grid item>
+        <Grid>
           <CircularProgress size={12}/>
         </Grid>
       </Grid>
@@ -169,23 +169,23 @@ const TemplatesTabContent = ({lastKind} : {lastKind?: InvoiceTemplateKind}) => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={3} md={3} xl={3}>
+      <Grid size={{ xs: 3, md: 3, xl: 3 }}>
         <Grid container rowSpacing={3}>
-          <Grid item xs={12} md={12} xl={12}>
+          <Grid size={{ xs: 12, md: 12, xl: 12 }}>
             <Alert>La prévisualisation est basée sur la dernière commande</Alert>
           </Grid>
-          <Grid item xs={12} md={12} xl={12}>
+          <Grid size={{ xs: 12, md: 12, xl: 12 }}>
             <Container>
               <Grid container rowSpacing={3} direction={'column'}>
-                <Grid item>
+                <Grid>
                   <Heading level="h1">
                     Choisir un modèle
                   </Heading>
                 </Grid>
-                <Grid item>
+                <Grid>
                   <ChooseTemplate lastKind={templateKind} setKind={setTemplateKind}/>
                 </Grid>
-                <Grid item>
+                <Grid>
                   <Button variant="primary" onClick={onSubmit}>
                     Sauvegarder
                   </Button>
@@ -195,7 +195,7 @@ const TemplatesTabContent = ({lastKind} : {lastKind?: InvoiceTemplateKind}) => {
           </Grid>
         </Grid>
       </Grid>
-      <Grid item xs={6} md={6} xl={6}>
+      <Grid size={{ xs: 6, md: 6, xl: 6 }}>
         <ViewExampleInvoice kind={templateKind}/>
       </Grid>
     </Grid>

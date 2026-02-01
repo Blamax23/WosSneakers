@@ -19,46 +19,46 @@ import InvoiceSettingsModal from "../settings/settings-invoice";
 export const SettingsTab = () => {
   return (
     <Grid container spacing={2}>
-      <Grid item xs={6} md={6} xl={6}>
+      <Grid size={{ xs: 6, md: 6, xl: 6 }}>
         <Container>
           <Grid container direction={'column'}>
-            <Grid item>
+            <Grid>
               <Heading level="h1">
                 Store information
               </Heading>
             </Grid>
-            <Grid item>
+            <Grid>
               <Text size="small">
                 Change information about your store to have it included in generated documents
               </Text>
             </Grid>
           </Grid>
           <Grid container marginTop={5} direction={'row'} columnSpacing={2}>
-            <Grid item>
+            <Grid>
               <AddressChangeModal/>
             </Grid>
-            <Grid item>
+            <Grid>
               <LogoChangeModal/>
             </Grid>
           </Grid>
         </Container>
       </Grid>
-      <Grid item xs={6} md={6} xl={6}>
+      <Grid size={{ xs: 6, md: 6, xl: 6 }}>
         <Container>
           <Grid container direction={'column'}>
-            <Grid item>
+            <Grid>
               <Heading level="h1">
                 Invoice
               </Heading>
             </Grid>
-            <Grid item>
+            <Grid>
               <Text size="small">
                 Change settings how invoices are generated
               </Text>
             </Grid>
           </Grid>
           <Grid container marginTop={5} direction={'row'} columnSpacing={2}>
-            <Grid item>
+            <Grid>
               <InvoiceSettingsModal/>
             </Grid>
           </Grid>

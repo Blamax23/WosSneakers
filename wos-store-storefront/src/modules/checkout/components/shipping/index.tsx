@@ -48,6 +48,100 @@ function formatAddress(address) {
   return ret
 }
 
+/**
+ * Mapping des délais de livraison par transporteur (en jours)
+ * À personnaliser selon vos contrats avec les transporteurs
+ */
+const CARRIER_DELIVERY_TIMES: Record<string, { min: number; max: number }> = {
+  colissimo: { min: 2, max: 5 },
+  chronopost: { min: 1, max: 2 },
+  ups_standard: { min: 3, max: 5 },
+  ups_express: { min: 1, max: 2 },
+  ups: { min: 2, max: 5 }, // fallback pour UPS
+  mondial_relay: { min: 3, max: 5 },
+  dhl: { min: 2, max: 4 },
+  dpd: { min: 2, max: 4 },
+  gls: { min: 2, max: 4 },
+  postnl: { min: 2, max: 5 },
+  bpost: { min: 2, max: 4 },
+}
+
+/**
+ * Détermine la clé du transporteur en fonction du nom et du carrier
+ */
+function getCarrierKey(optionName: string, carrier: string): string {
+  const nameLower = optionName.toLowerCase()
+  const carrierLower = carrier?.toLowerCase() || ''
+  
+  // Détection UPS Express vs Standard
+  if (carrierLower === 'ups') {
+    if (nameLower.includes('express') || nameLower.includes('worldwide express')) {
+      return 'ups_express'
+    }
+    if (nameLower.includes('standard')) {
+      return 'ups_standard'
+    }
+  }
+  
+  // Détection Chronopost (express) vs Colissimo (standard)
+  if (carrierLower === 'colissimo' || carrierLower === 'chronopost') {
+    if (nameLower.includes('express') || nameLower.includes('chrono')) {
+      return 'chronopost'
+    }
+  }
+  
+  return carrierLower
+}
+
+/**
+ * Formate le délai de livraison en jours
+ * @param option - L'option de livraison avec les données Sendcloud
+ * @returns Le texte formaté du délai ou null
+ */
+function formatDeliveryTime(option: HttpTypes.StoreCartShippingOption): string | null {
+  const data = option.data as any
+  const nestedData = data?.data // Les données Sendcloud sont dans data.data
+  
+  // Vérifier les différentes propriétés possibles pour le délai
+  const leadTimeHours = data?.lead_time_hours || nestedData?.lead_time_hours
+  const deliveryDays = data?.delivery_days || nestedData?.delivery_days
+  const minDays = data?.min_delivery_days || nestedData?.min_delivery_days
+  const maxDays = data?.max_delivery_days || nestedData?.max_delivery_days
+  
+  if (deliveryDays) {
+    return `${deliveryDays} jour${deliveryDays > 1 ? 's' : ''}`
+  }
+  
+  if (minDays && maxDays) {
+    if (minDays === maxDays) {
+      return `${minDays} jour${minDays > 1 ? 's' : ''}`
+    }
+    return `${minDays}-${maxDays} jours`
+  }
+  
+  if (leadTimeHours) {
+    const days = Math.ceil(leadTimeHours / 24)
+    return `${days} jour${days > 1 ? 's' : ''}`
+  }
+  
+  // Fallback: utiliser le mapping par transporteur avec détection express/standard
+  const carrier = nestedData?.carrier
+  const optionName = option.name || data?.name || ''
+  
+  if (carrier) {
+    const carrierKey = getCarrierKey(optionName, carrier)
+    if (CARRIER_DELIVERY_TIMES[carrierKey]) {
+      const { min, max } = CARRIER_DELIVERY_TIMES[carrierKey]
+      if (min === max) {
+        return `${min} jour${min > 1 ? 's' : ''}`
+      }
+      return `${min}-${max} jours`
+    }
+  }
+  
+  return null
+}
+
 const Shipping: React.FC<ShippingProps> = ({
   cart,
   availableShippingMethods,
@@ -232,6 +326,8 @@ const Shipping: React.FC<ShippingProps> = ({
                       option.price_type === "calculated" &&
                       !isLoadingPrices &&
                       typeof calculatedPricesMap[option.id] !== "number"
+                    
+                    const deliveryTime = formatDeliveryTime(option)
 
                     return (
                       <Radio
@@ -253,9 +349,16 @@ const Shipping: React.FC<ShippingProps> = ({
                           <MedusaRadio
                             checked={option.id === shippingMethodId}
                           />
-                          <span className="text-base-regular">
-                            {option.name}
-                          </span>
+                          <div className="flex flex-col">
+                            <span className="text-base-regular">
+                              {option.name}
+                            </span>
+                            {deliveryTime && (
+                              <span className="text-sm text-ui-fg-subtle">
+                                Livraison estimée : {deliveryTime}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <span className="justify-self-end text-ui-fg-base">
                           {option.price_type === "flat" ? (

@@ -14,7 +14,7 @@ export const deleteProductsFromAlgoliaStep = createStep(
         { ids }: DeleteProductsFromAlgoliaWorkflow,
         { container }
     ) => {
-        const algoliaModuleService = container.resolve(ALGOLIA_MODULE)
+        const algoliaModuleService: any = container.resolve(ALGOLIA_MODULE)
         
         const existingRecords = await algoliaModuleService.retrieveFromIndex(
             ids, 
@@ -31,7 +31,7 @@ export const deleteProductsFromAlgoliaStep = createStep(
         if (!existingRecords) {
             return
         }
-        const algoliaModuleService = container.resolve(ALGOLIA_MODULE)
+        const algoliaModuleService: any = container.resolve(ALGOLIA_MODULE)
         
         await algoliaModuleService.indexData(
             existingRecords as unknown as Record<string, unknown>[],

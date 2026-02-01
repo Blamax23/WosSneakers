@@ -20,12 +20,12 @@ import { DocumentAddress } from "../types/api";
 const AddressField = ({ name, placeholder, initValue, register } : {name: string, placeholder: string, initValue?: string, register: any}) => {
   return (
     <Grid container direction={'column'} spacing={1} marginTop={2}>
-      <Grid item>
+      <Grid>
         <Label size="small">
           {name}
         </Label>
       </Grid>
-      <Grid item>
+      <Grid>
         <Input 
           placeholder={placeholder}
           {...register}
@@ -111,7 +111,7 @@ const AddressForm = ({ address, setOpenModal } : {address?: DocumentAddress, set
           register={register('postal_code')}
           initValue={address?.postal_code}
         />
-        <Grid item>
+        <Grid>
           <Button
             type="submit"
             variant={'primary'}
@@ -163,20 +163,20 @@ const AddressModalDetails = ({ setOpenModal }) => {
   return (
     <FocusModal.Body>
       <Grid container direction={'column'} alignContent={'center'} paddingTop={8}>
-        <Grid item>
+        <Grid>
           <Heading>Store address</Heading>
         </Grid>
-        <Grid item>
+        <Grid>
           <Text>
             This address will be used on your documents.
           </Text>
         </Grid>
-        <Grid item>
+        <Grid>
           <Text>
             Presence of field on document depends on template.
           </Text>
         </Grid>
-        <Grid item>
+        <Grid>
           <AddressForm address={data?.settings?.storeAddress} setOpenModal={setOpenModal}/>
         </Grid>
       </Grid>

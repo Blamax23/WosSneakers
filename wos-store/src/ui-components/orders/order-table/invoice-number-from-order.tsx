@@ -11,8 +11,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { CircularProgress } from "@mui/material";
-import { Grid } from "@mui/material";
+import { CircularProgress, Grid } from "@mui/material";
 import { toast } from "@medusajs/ui";
 import { InvoiceResult } from "../../types/api";
 
@@ -106,7 +105,7 @@ const InvoiceNumberFromOrder = ({
 
   if (isLoading) {
     return (
-      <Grid item>
+      <Grid>
         <CircularProgress size={8} />
       </Grid>
     );
@@ -114,7 +113,7 @@ const InvoiceNumberFromOrder = ({
 
   if (data && data.invoice) {
     return (
-      <Grid item>
+      <Grid>
         <p
           className="text-grey-90 hover:text-violet-60 cursor-pointer pl-2 transition-colors duration-200"
           onClick={() => handleClick()}

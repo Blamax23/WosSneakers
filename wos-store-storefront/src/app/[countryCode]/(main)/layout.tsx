@@ -42,7 +42,9 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
           shippingOptions={shippingOptions}
         />
       )}
-      {props.children}
+      <main style={{ minHeight: '80vh' }}>
+        {props.children}
+      </main>
       <Footer />
       <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/84043e9a62e10844e4c4c055/script.js"></script>
     </>

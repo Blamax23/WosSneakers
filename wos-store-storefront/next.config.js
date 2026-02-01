@@ -7,6 +7,7 @@ checkEnvVariables()
  */
 const nextConfig = {
   reactStrictMode: true,
+  
   logging: {
     fetches: {
       fullUrl: true,

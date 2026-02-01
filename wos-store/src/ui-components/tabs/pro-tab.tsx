@@ -19,20 +19,20 @@ export const ProTab = () => {
   return (
     <Grid container spacing={2} justifyContent={"center"} >
       <Grid container justifyContent={"center"} marginTop={6}>
-        <Grid item>
+        <Grid>
           <Heading level='h1' style={ { color: 'purple'}}>
             Manage documents on the next level
           </Heading>
         </Grid>
       </Grid>
       <Grid container justifyContent={"center"} marginTop={1} spacing={5}>
-        <Grid item xs={3} md={3} xl={3}>
+        <Grid size={{ xs: 3, md: 3, xl: 3 }}>
           <Container style={ { borderColor: 'purple', borderWidth: 1, height: HEIGHT}}>
             <Grid container rowSpacing={3}>
-              <Grid item>
+              <Grid>
                 <Heading level='h1'>Automation</Heading>
               </Grid>
-              <Grid item>
+              <Grid>
                 <ul style={ { listStyleType: 'circle'}}>
                   <li>
                     <Text>Automatically send invoices to customers</Text>
@@ -48,13 +48,13 @@ export const ProTab = () => {
             </Grid>
           </Container>
         </Grid>
-        <Grid item xs={3} md={3} xl={3}>
+        <Grid size={{ xs: 3, md: 3, xl: 3 }}>
           <Container style={ { borderColor: 'purple', borderWidth: 1, height: HEIGHT}}>
             <Grid container rowSpacing={3}>
-              <Grid item>
+              <Grid>
                 <Heading level='h1'>New templates</Heading>
               </Grid>
-              <Grid item>
+              <Grid>
                 <ul style={ { listStyleType: 'circle'}}>
                   <li>
                     <Text>Access new premium templates for invoices and other documents</Text>
@@ -67,13 +67,13 @@ export const ProTab = () => {
             </Grid>
           </Container>
         </Grid>
-        <Grid item xs={3} md={3} xl={3}>
+        <Grid size={{ xs: 3, md: 3, xl: 3 }}>
           <Container style={ { borderColor: 'purple', borderWidth: 1, height: HEIGHT}}>
             <Grid container rowSpacing={3}>
-              <Grid item>
+              <Grid>
                 <Heading level='h1'>Advanced configuration</Heading>
               </Grid>
-              <Grid item>
+              <Grid>
                 <ul style={ { listStyleType: 'circle'}}>
                   <li>
                     <Text>Set different addresses for various document types</Text>
@@ -89,13 +89,13 @@ export const ProTab = () => {
             </Grid>
           </Container>
         </Grid>
-        <Grid item xs={3} md={3} xl={3}>
+        <Grid size={{ xs: 3, md: 3, xl: 3 }}>
           <Container style={ { borderColor: 'purple', borderWidth: 1, height: HEIGHT}}>
             <Grid container rowSpacing={3}>
-              <Grid item>
+              <Grid>
                 <Heading level='h1'>Professional support</Heading>
               </Grid>
-              <Grid item>
+              <Grid>
                 <ul style={ { listStyleType: 'circle'}}>
                   <li>
                     <Text>Priority bug resolution</Text>
@@ -114,12 +114,12 @@ export const ProTab = () => {
       </Grid>
       <Grid container spacing={3} direction={'column'} alignContent={"center"} marginTop={6}>
         <Grid container direction={'row'} justifyContent={'center'} columnSpacing={1}>
-          <Grid item>
+          <Grid>
             <Heading level='h1' color="purple">
               Contact:
             </Heading>
           </Grid>
-          <Grid item>
+          <Grid>
             <Link href="mailto:labs@rsoftcon.com">
               <Heading level='h1' color="purple">
                 labs@rsoftcon.com
@@ -130,12 +130,12 @@ export const ProTab = () => {
       </Grid>
       <Grid container spacing={3} direction={'column'} alignContent={"center"} marginTop={6}>
         <Grid container direction={'row'} justifyContent={'center'} columnSpacing={1}>
-          <Grid item>
+          <Grid>
             <Text>
               You can hide this tab if you feel it is intruisive. See: 
             </Text>
           </Grid>
-          <Grid item>
+          <Grid>
             <Link href="https://github.com/RSC-Labs/medusa-documents?tab=readme-ov-file#hide-pro-version-tab">
               <Text>
                 How to hide this tab?

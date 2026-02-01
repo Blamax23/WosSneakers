@@ -182,7 +182,7 @@ const Payment = ({
     setError(null)
 
     // Utiliser pp_stripe_stripe pour le paiement Stripe normal
-    const providerId = "pp_stripe_stripe"
+    const providerId = "pp_stripe_stripe" // Remplacé par pp_system_default pour le mode test
 
     try {
       await initiatePaymentSession(cart, {

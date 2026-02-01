@@ -6,8 +6,11 @@ import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { HttpTypes } from "@medusajs/types"
 
 export const retrieveOrder = async (id: string) => {
-  const headers = {
-    ...(await getAuthHeaders()),
+  const headers = await getAuthHeaders()
+
+  // Si pas d'authentification, retourner null
+  if (!headers || !headers.authorization) {
+    return null
   }
 
   const next = {
@@ -26,12 +29,20 @@ export const retrieveOrder = async (id: string) => {
       cache: "force-cache",
     })
     .then(({ order }) => order)
-    .catch((err) => medusaError(err))
+    .catch((err) => {
+      if (err?.status === 401 || err?.statusText === "Unauthorized") {
+        return null
+      }
+      return medusaError(err)
+    })
 }
 
 export const retrieveOrderMetadata = async (id: string) => {
-  const headers = {
-    ...(await getAuthHeaders()),
+  const headers = await getAuthHeaders()
+
+  // Si pas d'authentification, retourner null
+  if (!headers || !headers.authorization) {
+    return null
   }
 
   const next = {
@@ -50,7 +61,12 @@ export const retrieveOrderMetadata = async (id: string) => {
       cache: "force-cache",
     })
     .then(({ order }) => order)
-    .catch((err) => medusaError(err))
+    .catch((err) => {
+      if (err?.status === 401 || err?.statusText === "Unauthorized") {
+        return null
+      }
+      return medusaError(err)
+    })
 }
 
 // export const updateOrder = async (order : HttpTypes.StoreOrder) => {
@@ -119,8 +135,11 @@ export const listOrders = async (
   offset: number = 0,
   filters?: Record<string, any>
 ) => {
-  const headers = {
-    ...(await getAuthHeaders()),
+  const headers = await getAuthHeaders()
+
+  // Si pas d'authentification, retourner un tableau vide
+  if (!headers || !headers.authorization) {
+    return []
   }
 
   const next = {
@@ -142,7 +161,14 @@ export const listOrders = async (
       cache: "force-cache",
     })
     .then(({ orders }) => orders)
-    .catch((err) => medusaError(err))
+    .catch((err) => {
+      // Si 401, retourner un tableau vide au lieu de throw
+      if (err?.status === 401 || err?.statusText === "Unauthorized") {
+        console.error("Unauthorized access to orders, returning empty array")
+        return []
+      }
+      return medusaError(err)
+    })
 }
 
 export const createTransferRequest = async (
