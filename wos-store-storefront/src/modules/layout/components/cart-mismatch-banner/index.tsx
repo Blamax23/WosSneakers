@@ -12,7 +12,7 @@ function CartMismatchBanner(props: {
 }) {
   const { customer, cart } = props
   const [isPending, setIsPending] = useState(false)
-  const [actionText, setActionText] = useState("Run transfer again")
+  const [actionText, setActionText] = useState("Réessayer le transfert")
 
   if (!customer || !!cart.customer_id) {
     return
@@ -21,11 +21,11 @@ function CartMismatchBanner(props: {
   const handleSubmit = async () => {
     try {
       setIsPending(true)
-      setActionText("Transferring..")
+      setActionText("Transfert en cours...")
 
       await transferCart()
     } catch {
-      setActionText("Run transfer again")
+      setActionText("Réessayer le transfert")
       setIsPending(false)
     }
   }

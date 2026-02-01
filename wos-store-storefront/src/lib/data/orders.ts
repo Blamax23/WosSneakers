@@ -108,7 +108,6 @@ export const listReturnReasons = async () => {
   fetch(`${process.env.MEDUSA_BACKEND_URL}/store/return-reasons`)
     .then(res => res.json())
     .then(data => {
-      console.log(data.return_reasons);
       return_reasons = data.return_reasons
     });
 

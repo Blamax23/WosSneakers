@@ -7,14 +7,17 @@ import {
 // Defaults to standard port for Medusa server
 let NEXT_PUBLIC_MEDUSA_BACKEND_URL = "http://localhost:9000"
 
+const cleanEnv = (v?: string) =>
+  (v || "").trim().replace(/^['\"]|['\"]$/g, "")
+
 if (process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL) {
-  NEXT_PUBLIC_MEDUSA_BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+  NEXT_PUBLIC_MEDUSA_BACKEND_URL = cleanEnv(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL)
 }
 
 export const sdk = new Medusa({
   baseUrl: NEXT_PUBLIC_MEDUSA_BACKEND_URL,
   debug: process.env.NODE_ENV === "development",
-  publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
+  publishableKey: cleanEnv(process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY),
 })
 
 export const searchClient: SearchClient = {

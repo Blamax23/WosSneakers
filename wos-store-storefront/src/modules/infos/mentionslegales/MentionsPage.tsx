@@ -29,18 +29,14 @@ const Mentions: React.FC = () => {
           En vertu de l'article 6 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique, il est précisé aux utilisateurs du site internet <a href="https://wossneakers.fr" className="text-black-600 hover:underline">https://wossneakers.fr</a> l'identité des différents intervenants dans le cadre de sa réalisation et de son suivi:
       </p>
       <p className="mb-4 pl-4 border-l-4 border-black-200">
-          <span className="font-bold">Propriétaire</span> : SASU WOS Sneakers Capital social de 100€ Numéro de TVA: 9598916513481 – 256 Rue des Blès d'Or 01000 Saint-Denis-Lès-Bourg<br/>
+          <span className="font-bold">Propriétaire</span> : Maxime Bailly – 257 Rue des Blès d'Or 01000 Saint-Denis-Lès-Bourg<br/>
 
-          <span className="font-bold">Responsable publication</span> : Blanc Maxime – blamaxsolutions@gmail.com<br/>
+          <span className="font-bold">Responsable publication</span> : Maxime Blanc – blamaxsolutions@gmail.com<br/>
           Le responsable publication est une personne physique ou une personne morale.<br/>
-          <span className="font-bold">Webmaster</span> : Blanc Maxime – blamaxsolutions@gmail.com<br/>
+          <span className="font-bold">Webmaster</span> : Maxime Blanc – blamaxsolutions@gmail.com<br/>
           <span className="font-bold">Hébergeur</span> : ovh – 2 rue Kellermann 59100 Roubaix 1007<br/>
-          <span className="font-bold">Délégué à la protection des données</span> : Blanc Maxime – blamaxsolutions@gmail.com<br/>
+          <span className="font-bold">Délégué à la protection des données</span> : Maxime Blanc – blamaxsolutions@gmail.com<br/>
       </p>
-
-      <div className="text-sm text-gray-600 italic mb-6 mt-2">
-          <p>Les mentions légales sont issues du modèle proposé par le <a href="https://fr.orson.io/1371/generateur-mentions-legales" className="text-black-500 hover:underline" title="générateur gratuit de mentions légales pour un site internet">générateur gratuit de mentions légales pour un site internet</a></p>
-      </div>
 
       <h2 className="text-2xl font-semibold mb-4 text-black-700 mt-8">2. Conditions générales d'utilisation du site et des services proposés.</h2>
 

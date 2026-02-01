@@ -44,7 +44,6 @@ export default async function i18nextLoader({
       console.log('Language is not configured, using "en" by default.')
     } 
     else {
-      console.log(`Language is configured as ${configLanguage}`)
       const translationPath = path.resolve(__dirname, `../assets/i18n/locales/${configLanguage}/translation.json`);
       const translations = await import(translationPath);
       i18next.addResourceBundle(

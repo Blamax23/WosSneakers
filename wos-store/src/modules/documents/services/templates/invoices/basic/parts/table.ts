@@ -16,6 +16,21 @@ import { OrderDTO, OrderLineItemDTO } from "@medusajs/framework/types";
 import { getDecimalDigits } from "../../../../../utils/currency";
 import { BigNumber } from "@medusajs/framework/utils";
 
+/**
+ * Extrait une valeur numérique de différents formats possibles:
+ * - BigNumber avec .numeric
+ * - Objet avec .value (format raw)
+ * - Nombre direct
+ */
+function toNumber(value: any): number {
+  if (value === null || value === undefined) return 0;
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') return parseFloat(value) || 0;
+  if (typeof value?.numeric === 'number') return value.numeric;
+  if (typeof value?.value !== 'undefined') return parseFloat(value.value) || 0;
+  return 0;
+}
+
 function amountToDisplay(amount: number, currencyCode: string): string {
   const decimalDigits = getDecimalDigits(currencyCode);
   return `${(amount / Math.pow(10, decimalDigits)).toFixed(
@@ -100,17 +115,19 @@ export function generateInvoiceTable(
     }
 
     const item = items[i];
+    // Utilise toNumber pour gérer tous les formats possibles (BigNumber, raw, number)
+    const unitPrice = toNumber(item.raw_unit_price);
     currentY = generateTableRow(
       doc,
       currentY,
       item.title,
       item.subtitle,
-      amountToDisplayNormalized(Number(item.raw_unit_price.value), order.currency_code),
+      amountToDisplayNormalized(unitPrice, order.currency_code),
       item.quantity,
-      amountToDisplayNormalized(Number(item.raw_unit_price.value) * item.quantity, order.currency_code)
+      amountToDisplayNormalized(unitPrice * item.quantity, order.currency_code)
     );
 
-    initial_total_amount += Number(item.raw_unit_price.value) * item.quantity;
+    initial_total_amount += unitPrice * item.quantity;
 
     currentY += 5;
 
@@ -133,10 +150,14 @@ export function generateInvoiceTable(
     currentY = 50;
   }
 
-  if (order.total != (initial_total_amount + (order.shipping_subtotal as BigNumber).numeric)) {
-    console.log("Hey : ", order.items?.[0].adjustments);
-    let code = order.items?.[0].adjustments?.[0].code;
-    let reduc = new BigNumber((order.total as BigNumber).numeric - (initial_total_amount + (order.shipping_subtotal as BigNumber).numeric));
+  const shippingSubtotal = toNumber(order.shipping_subtotal);
+  
+  // Utilise discount_total de l'order directement (valeur fiable de Medusa)
+  const discountTotal = toNumber(order.discount_total);
+  
+  // Affiche la réduction seulement s'il y en a une réelle
+  if (discountTotal > 0.01) {
+    let code = order.items?.[0]?.adjustments?.[0]?.code || "Réduction";
     generateTableRow(
       doc,
       currentY,
@@ -144,11 +165,9 @@ export function generateInvoiceTable(
       "",
       "Réduction :",
       code,
-      "- " + amountToDisplayNormalized(
-        (reduc as BigNumber).numeric,
-        order.currency_code
-      )
+      "- " + amountToDisplayNormalized(discountTotal, order.currency_code)
     );
+    currentY += 30;
   }
 
   currentY += 30;
@@ -164,7 +183,7 @@ export function generateInvoiceTable(
     "Prix Livraison :",
     "",
     amountToDisplayNormalized(
-      (order.shipping_subtotal as BigNumber).numeric,
+      shippingSubtotal,
       order.currency_code
     )
   );
@@ -182,7 +201,7 @@ export function generateInvoiceTable(
     "Taxes : ",
     "",
     amountToDisplayNormalized(
-      (order.tax_total as BigNumber).numeric,
+      toNumber(order.tax_total),
       order.currency_code
     )
   );
@@ -201,7 +220,7 @@ export function generateInvoiceTable(
     "Prix TTC : ",
     "",
     amountToDisplayNormalized(
-      (order.total as BigNumber).numeric,
+      toNumber(order.total),
       order.currency_code
     )
   );

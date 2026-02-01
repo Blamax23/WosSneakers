@@ -9,7 +9,7 @@ const Privacy: React.FC = () => {
       </Head>
       <div className="px-4 py-8 max-w-4xl mx-auto">
         <h1 className="text-2xl md:text-3xl font-bold text-center mb-2">Politique de Confidentialité</h1>
-        <p className="text-center text-sm text-gray-500 mb-8">Dernière mise à jour : Février 2025</p>
+        <p className="text-center text-sm text-gray-500 mb-8">Dernière mise à jour : Janvier 2026</p>
 
         <div className="space-y-12">
           <section>
@@ -40,7 +40,6 @@ const Privacy: React.FC = () => {
             <ul className="list-disc list-inside space-y-1">
               <li>Nos prestataires de paiement (ex: Stripe, PayPal).</li>
               <li>Nos transporteurs pour la livraison.</li>
-              <li>Des services analytiques (ex: Google Analytics).</li>
             </ul>
           </section>
 
@@ -72,9 +71,8 @@ const Privacy: React.FC = () => {
               <li>Accéder à vos données.</li>
               <li>Modifier ou supprimer vos informations.</li>
               <li>Retirer votre consentement pour les cookies.</li>
-              <li>Demander l’exportation de vos données.</li>
             </ul>
-            <p className="mt-2">Pour exercer ces droits, contactez-nous à <strong>[ton email]</strong>.</p>
+            <p className="mt-2">Pour exercer ces droits, contactez-nous à <strong>wossneakers@gmail.com</strong>.</p>
           </section>
 
           <section>
@@ -82,8 +80,6 @@ const Privacy: React.FC = () => {
             <p className="mb-2">Nous utilisons des cookies pour :</p>
             <ul className="list-disc list-inside space-y-1">
               <li>Assurer le bon fonctionnement du site.</li>
-              <li>Analyser le trafic (Google Analytics).</li>
-              <li>Personnaliser les publicités.</li>
             </ul>
             <p className="mt-2">Vous pouvez gérer vos préférences via notre bandeau de cookies.</p>
           </section>

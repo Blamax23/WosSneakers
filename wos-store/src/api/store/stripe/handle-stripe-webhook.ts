@@ -1,40 +1,52 @@
-// src/api/stripe/handle-stripe-webhook.ts
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import Stripe from "stripe";
+// src/api/store/stripe/handle-stripe-webhook.ts
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import Stripe from "stripe"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2024-04-10",
-});
+  apiVersion: "2024-04-10",
+})
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-    const sig = req.headers["stripe-signature"];
-    let event: Stripe.Event;
+  const sig = req.headers["stripe-signature"] as string | undefined
+  const secret = process.env.STRIPE_WEBHOOK_SECRET
 
-    const rawBody = await req.rawBody; // ⚠️ Medusa doit avoir le raw body activé pour ça
+  let event: Stripe.Event | null = null
 
-    try {
-        event = stripe.webhooks.constructEvent(
-            rawBody,
-            sig!,
-            process.env.STRIPE_WEBHOOK_SECRET!
-        );
-    } catch (err: any) {
-        console.error("❌ Erreur de signature Stripe:", err.message);
-        res.status(400).send(`Webhook Error: ${err.message}`);
-        return;
+  try {
+    if (secret && (req as any).rawBody) {
+      // ✅ Verify signature with the exact raw body
+      const rawBody = await (req as any).rawBody
+      event = stripe.webhooks.constructEvent(rawBody, sig!, secret)
+    } else {
+      // ⚠️ Fallback for local/dev: trust body without signature (not recommended for production)
+      const body = (req as any).body || {}
+      if (secret) {
+        console.warn("Stripe raw body is missing — cannot verify signature. Ensure raw body parsing is enabled for this route.")
+      }
+      event = body as Stripe.Event
     }
+  } catch (err: any) {
+    console.error("❌ Stripe webhook constructEvent error:", err?.message || err)
+    return res.status(400).send(`Webhook Error: ${err?.message || "invalid"}`)
+  }
 
-    // 🔔 Traite l'event ici
-    switch (event.type) {
-        case "checkout.session.completed":
-            const session = event.data.object as Stripe.Checkout.Session;
-            console.log("✅ Checkout terminé pour :", session.id);
-            break;
+  if (!event) {
+    return res.status(400).send("No event parsed")
+  }
 
-        // Ajoute d'autres cas ici si besoin
-        default:
-            console.log(`📩 Event Stripe reçu : ${event.type}`);
+  // 🔔 Handle events
+  switch (event.type) {
+    case "checkout.session.completed": {
+      const session = event.data.object as Stripe.Checkout.Session
+      break
     }
+    case "payment_intent.succeeded": {
+      const pi = event.data.object as Stripe.PaymentIntent
+      break
+    }
+    default:
+      break
+  }
 
-    res.status(200).send();
-};
+  res.status(200).send()
+}

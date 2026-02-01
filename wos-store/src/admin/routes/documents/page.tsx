@@ -20,7 +20,6 @@ import { SettingsTab } from "../../../ui-components/tabs/settings-tab";
 import { ProTab } from "../../../ui-components/tabs/pro-tab";
 
 const DocumentsPage = () => {
-  console.log(import.meta.env.VITE_MEDUSA_ADMIN_MEDUSA_DOCUMENTS_HIDE_PRO);
   return (
     <Tabs defaultValue='orders'>
       <Toaster position="top-right"/>

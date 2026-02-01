@@ -63,7 +63,6 @@ export default async function PaginatedProducts({
     return null
   }
 
-  console.log("queryParams oui", queryParams)
   let {
     response: { products, count },
   } = await listProductsWithSort({
@@ -79,36 +78,50 @@ export default async function PaginatedProducts({
   return (
     <>
       <ul
-        className="grid grid-cols-4 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-4"
+        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-12"
         data-testid="products-list"
       >
-        {products.map((p) => {
-          console.log("VOici le produit à chaque fois : ", p)
-          const cheapestVariant = (p.variants ?? [])
-            .map(v => v as VariantWithPrices & { calculated_price?: { calculated_amount: number } })
-            .reduce<{ variant: VariantWithPrices | null; minAmount: number }>(
-              (acc, variant) => {
-                const price = variant.calculated_price?.calculated_amount ?? Infinity
-                if (price < acc.minAmount) {
-                  return { variant, minAmount: price }
-                }
-                return acc
-              },
-              { variant: null, minAmount: Infinity }
-            )
+{products.map((p) => {
+  const cheapestVariant = (p.variants ?? [])
+    .map(
+      (v) =>
+        v as VariantWithPrices & {
+          calculated_price?: { calculated_amount: number }
+        }
+    )
+    .reduce<{ variant: VariantWithPrices | null; minAmount: number }>(
+      (acc, variant) => {
+        const price = variant.calculated_price?.calculated_amount
 
-          console.log("Voici le cheapest Variant : ", cheapestVariant)
+        // Si pas de prix, on ne touche pas à l'accumulateur
+        if (price == null) {
+          return acc
+        }
 
-          if (cheapestVariant.variant) {
-            // cheapestVariant.variant est celui avec le prix le plus bas
-            console.log("Variant avec le prix minimum", cheapestVariant.variant)
-          }
-          return (
-            <li key={p.id}>
-              <ProductPreview product={{ ...p, cheapestVariant }} region={region} />
-            </li>
-          )
-        })}
+        if (price < acc.minAmount) {
+          return { variant, minAmount: price }
+        }
+
+        return acc
+      },
+      { variant: null, minAmount: Infinity }
+    )
+
+  if (!cheapestVariant.variant || !cheapestVariant.variant.calculated_price) {
+    console.warn(
+      "Produit sans prix calculé, on ne l'affiche pas dans la grille :",
+      p.title
+    )
+    return null
+  }
+
+  return (
+    <li key={p.id}>
+      <ProductPreview product={{ ...p, cheapestVariant }} region={region} />
+    </li>
+  )
+})}
+
       </ul>
       {totalPages > 1 && (
         <Pagination

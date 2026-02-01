@@ -175,14 +175,14 @@ const TemplatesTabContent = ({lastKind} : {lastKind?: PackingSlipTemplateKind}) 
       <Grid item xs={3} md={3} xl={3}>
         <Grid container rowSpacing={3}>
           <Grid item xs={12} md={12} xl={12}>
-            <Alert>Preview is based on the last order</Alert>
+            <Alert>La prévisualisation est basée sur la dernière commande</Alert>
           </Grid>
           <Grid item xs={12} md={12} xl={12}>
             <Container>
               <Grid container rowSpacing={3} direction={'column'}>
                 <Grid item>
                   <Heading level="h1">
-                    Choose template
+                    Choisir un modèle
                   </Heading>
                 </Grid>
                 <Grid item>
@@ -190,7 +190,7 @@ const TemplatesTabContent = ({lastKind} : {lastKind?: PackingSlipTemplateKind}) 
                 </Grid>
                 <Grid item>
                   <Button variant="primary" onClick={onSubmit}>
-                    Save
+                    Sauvegarder
                   </Button>
                 </Grid>
               </Grid>

@@ -12,7 +12,7 @@ export const paymentInfoMap: Record<
   { title: string; icon: React.JSX.Element }
 > = {
   card: {
-    title: "Credit card",
+    title: "Carte bancaire",
     icon: <CreditCard />,
   },
   ideal: {
@@ -32,7 +32,7 @@ export const paymentInfoMap: Record<
     icon: <Klarna />,
   },
   pp_system_default: {
-    title: "Manual Payment",
+    title: "Paiement manuel",
     icon: <CreditCard />,
   },
   // Add more payment providers here

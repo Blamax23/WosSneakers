@@ -14,15 +14,11 @@ export const metadata: Metadata = {
 export default async function OrderReturnedPage({ params }: { params: { id: string }}) {
   const order = await retrieveOrder(params.id).catch(() => null)
 
-  console.log("Voici l'order au départ : ", order)
-
   if (!order) {
     return notFound()
   }
 
   const returnReasons = listReturnReasons()
-
-  console.log(returnReasons)
 
   return <Button>Hello</Button>
 }

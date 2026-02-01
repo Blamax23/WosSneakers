@@ -14,6 +14,7 @@ import {
     Link,
 } from "@react-email/components"
 import { BigNumberValue, CustomerDTO, OrderDTO } from "@medusajs/framework/types"
+import Footer from "../lib/footer"
 
 type OrderPlacedEmailProps = {
     order: OrderDTO & {
@@ -24,6 +25,7 @@ type OrderPlacedEmailProps = {
         title: string
         url: string
     }
+    attachments?: unknown[] // Pièces jointes (gérées par le service, pas affichées dans l'email)
 }
 
 function OrderPlacedEmailComponent({ order, email_banner }: OrderPlacedEmailProps) {
@@ -47,29 +49,35 @@ function OrderPlacedEmailComponent({ order, email_banner }: OrderPlacedEmailProp
         return price?.toString() || ""
     }
 
-    console.log("Je montre les items de l'order : ", order.items)
-
     return (
         <Tailwind>
             <Html className="font-sans bg-gray-100">
                 <Head />
                 <Preview>Merci pour ta commande chez WOS Sneakers !</Preview>
-                <Body className="bg-white my-10 mx-auto w-full max-w-2xl">
+                <Body className="bg-white mx-auto w-full max-w-2xl">
                     {/* Header */}
 
                     {/* Thank You Message */}
                     <Container className="p-6">
-                        <a href="https://wossneakers.fr" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center mb-4">
-                            <img
+                        <Section style={logoSection}>
+                            <Link
+                            href="https://wossneakers.fr/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >
+                            <Img
                                 src="https://wossneakers.fr/WosLogos/logoWosBlack.png"
                                 alt="logo-Wos-Black"
-                                className="w-24" // tu ajustes comme tu veux
+                                width="200"
+                                style={logo}
                             />
-                        </a>
+                            </Link>
+                        </Section>
                         <Heading className="text-2xl font-bold text-center text-gray-800">
                             Merci pour ta commande, {order.customer?.first_name || order.shipping_address?.first_name}
                         </Heading>
                         <Text className="text-center text-gray-600 mt-2">
+                            Nous sommes ravis que tu aies pu trouver chaussure à ton pied ! 😍 <br />
                             Nous préparons ta commande et nous te tiendrons informé dès qu'elle sera expédiée.
                         </Text>
                     </Container>
@@ -178,22 +186,27 @@ function OrderPlacedEmailComponent({ order, email_banner }: OrderPlacedEmailProp
                         </Section>
                     </Container>
 
-                    {/* Footer */}
-                    <Section className="bg-gray-50 p-6 mt-10">
-                        <Text className="text-center text-gray-500 text-sm">
-                            Si vous avez des questions, répondez à cet e-mail ou contactez notre équipe d'assistance à l'adresse blamaxsolutions@gmail.com
-                        </Text>
-                        <Text className="text-center text-gray-500 text-sm">
-                            Id Commande: {order.id}
-                        </Text>
-                        <Text className="text-center text-gray-400 text-xs mt-4">
-                            © {new Date().getFullYear()} WOS, Inc. Tous droits réservés.
-                        </Text>
-                    </Section>
+                    <Footer />
                 </Body>
             </Html>
         </Tailwind >
     )
+}
+
+const image= {
+    display: "block",
+    margin: "0 auto 20px",
+}
+
+const logoSection = {
+  textAlign: "center" as const,
+  marginBottom: "24px",
+}
+
+const logo = {
+  display: "block",
+  margin: "0 auto",
+  maxWidth: "200px",
 }
 
 export const orderPlacedEmail = (props: OrderPlacedEmailProps) => (

@@ -25,7 +25,7 @@ export default async function Footer() {
               
             </LocalizedClientLink>
           </div> */}
-          <div className="text-small-regular gap-10 md:gap-x-16 grid grid-cols-4 sm:grid-cols-4">
+          <div className="text-small-regular w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10 md:gap-x-16">
             {collections && collections.length > 0 && (
               <div className="flex flex-col gap-y-2">
                 <span className="txt-small-plus txt-ui-fg-base">
@@ -115,7 +115,7 @@ export default async function Footer() {
               <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
                 <li>
                   <a
-                    href="https://www.instagram.com/toncompte"
+                    href="https://www.instagram.com/wossneakers?igsh=eTRveHFnaGwwbWow"
                     target="_blank"
                     rel="noreferrer"
                     className="hover:text-ui-fg-base flex items-center gap-x-2"
@@ -125,22 +125,12 @@ export default async function Footer() {
                 </li>
                 <li>
                   <a
-                    href="https://www.tiktok.com/@toncompte"
+                    href="https://www.tiktok.com/@wossneakers?_r=1&_t=ZN-91WbDLd4ZXS"
                     target="_blank"
                     rel="noreferrer"
                     className="hover:text-ui-fg-base flex items-center gap-x-2"
                   >
                     <Music2 size={16} /> TikTok
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://www.facebook.com/toncompte"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base flex items-center gap-x-2"
-                  >
-                    <Facebook size={16} /> Facebook
                   </a>
                 </li>
               </ul>

@@ -8,7 +8,6 @@ const filtered = methods.filter(m =>
     m.countries.some(c => c.iso_2 === 'FR')
 )
 
-console.log("Méthodes disponibles en 🇫🇷 France :\n")
 filtered.forEach(m => {
     console.log(`- ID: ${m.id} | ${m.name} (${m.carrier})`)
 })

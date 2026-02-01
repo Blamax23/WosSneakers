@@ -2,7 +2,7 @@ import { Metadata } from "next"
 
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import StoreTemplate from "@modules/store/templates"
-
+export const dynamic = "force-dynamic"
 export const metadata: Metadata = {
   title: "Boutique",
   description: "Consultez tous nos produits",
@@ -23,12 +23,6 @@ type Params = {
 export default async function StorePage({ searchParams, params }: Params) {
   const { sortBy, collection_id, page, price } = searchParams
   const { countryCode } = params
-
-  console.log("sortBy", sortBy)
-  console.log("collection_id", collection_id)
-  console.log("page", page)
-  console.log("price", price)
-  console.log("countryCode", countryCode)
 
   return (
     <StoreTemplate

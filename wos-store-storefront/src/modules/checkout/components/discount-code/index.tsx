@@ -1,6 +1,6 @@
 "use client"
 
-import { Badge, Heading, Input, Label, Text, Tooltip } from "@medusajs/ui"
+import { Badge, Button, Heading, Input, Label, Text, Tooltip } from "@medusajs/ui"
 import React, { useActionState } from "react";
 
 import { applyPromotions, submitPromotionForm } from "@lib/data/cart"
@@ -56,15 +56,14 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
       <div className="txt-medium">
         <form action={(a) => addPromotionCode(a)} className="w-full mb-5">
           <Label className="flex gap-x-1 my-2 items-center">
-            <button
+            <Button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
-              className="txt-medium text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
+              variant="secondary"
               data-testid="add-discount-button"
             >
               Ajouter un code de réduction
-            </button>
-
+            </Button>
             {/* <Tooltip content="You can add multiple promotion codes">
               <InformationCircleSolid color="var(--fg-muted)" />
             </Tooltip> */}
@@ -82,7 +81,7 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
                   data-testid="discount-input"
                 />
                 <SubmitButton
-                  variant="secondary"
+                  variant="primary"
                   data-testid="discount-apply-button"
                 >
                   Appliquer

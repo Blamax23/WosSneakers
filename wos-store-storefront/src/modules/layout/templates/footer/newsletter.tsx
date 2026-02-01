@@ -70,7 +70,7 @@ const NewsletterForm = () => {
                     type="submit"
                     className={`w-full px-4 py-3 rounded-lg font-medium transition-colors ${isLoading
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                        : "bg-black hover:bg-gray-800 text-white"
                         }`}
                     disabled={isLoading}
                 >

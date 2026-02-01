@@ -15,17 +15,13 @@ const stripeKey = process.env.NEXT_PUBLIC_STRIPE_KEY
 const stripePromise = stripeKey ? loadStripe(stripeKey) : null
 
 const PaymentWrapper: React.FC<PaymentWrapperProps> = ({ cart, children }) => {
+  // Medusa payment sessions can have different statuses (not always "pending").
+  // For Stripe, the reliable signal is the presence of a client_secret.
   const paymentSession = cart.payment_collection?.payment_sessions?.find(
-    (s) => s.status === "pending"
+    (s) => isStripe(s.provider_id) && !!(s as any)?.data?.client_secret
   )
 
-  console.log("Je montre le paymentSession : ", paymentSession)
-
-  if (
-    isStripe(paymentSession?.provider_id) &&
-    paymentSession &&
-    stripePromise
-  ) {
+  if (paymentSession && stripePromise) {
     return (
       <StripeWrapper
         paymentSession={paymentSession}

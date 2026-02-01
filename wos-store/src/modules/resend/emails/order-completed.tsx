@@ -14,6 +14,7 @@ import {
     Link, 
   } from "@react-email/components"
   import { BigNumberValue, CustomerDTO, OrderDTO } from "@medusajs/framework/types"
+import Footer from "../lib/footer"
   
   type OrderPlacedEmailProps = {
     order: OrderDTO & {
@@ -49,13 +50,20 @@ function OrderCompletedEmailComponent({ order, email_banner }: OrderPlacedEmailP
         <Body className="bg-white my-10 mx-auto w-full max-w-2xl">
 
           <Container className="p-6">
-            <a href="https://imgbb.com/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center mb-4">
-                <img
-                    src="https://i.ibb.co/qMLmLrrw/logo-Wos-Black.png"
-                    alt="logo-Wos-Black"
-                    className="w-24" // tu ajustes comme tu veux
+            <Section style={logoSection}>
+              <Link
+                href="https://wossneakers.fr/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Img
+                  src="https://wossneakers.fr/WosLogos/logoWosBlack.png"
+                  alt="logo-Wos-Black"
+                  width="200"
+                  style={logo}
                 />
-            </a>
+              </Link>
+            </Section>
             <Heading className="text-2xl font-bold text-center text-gray-800">
               Ta commande est arrivée, {order.customer?.first_name || order.shipping_address?.first_name} 👟
             </Heading>
@@ -118,21 +126,27 @@ function OrderCompletedEmailComponent({ order, email_banner }: OrderPlacedEmailP
             ))}
           </Container>
 
-          <Section className="bg-gray-50 p-6 mt-10">
-            <Text className="text-center text-gray-500 text-sm">
-              Une question ? Réponds à ce mail ou écris-nous à blamaxsolutions@gmail.com
-            </Text>
-            <Text className="text-center text-gray-500 text-sm">
-              Id Commande: {order.id}
-            </Text>
-            <Text className="text-center text-gray-400 text-xs mt-4">
-              © {new Date().getFullYear()} WOS, Inc. Tous droits réservés.
-            </Text>
-          </Section>
+          <Footer />
         </Body>
       </Html>
     </Tailwind>
   )
+}
+
+const image = {
+    display: "block",
+    margin: "0 auto 20px",
+}
+
+const logoSection = {
+  textAlign: "center" as const,
+  marginBottom: "24px",
+}
+
+const logo = {
+  display: "block",
+  margin: "0 auto",
+  maxWidth: "200px",
 }
 
 export const orderCompletedEmail = (props: OrderPlacedEmailProps) => (

@@ -12,6 +12,7 @@ import Divider from "@modules/common/components/divider"
 import MedusaRadio from "@modules/common/components/radio"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
+import SendcloudPickup from "./SendcloudPickup"
 
 const PICKUP_OPTION_ON = "__PICKUP_ON"
 const PICKUP_OPTION_OFF = "__PICKUP_OFF"
@@ -63,8 +64,9 @@ const Shipping: React.FC<ShippingProps> = ({
   const [shippingMethodId, setShippingMethodId] = useState<string | null>(
     cart.shipping_methods?.at(-1)?.shipping_option_id || null
   )
-
-  console.log("ship", availableShippingMethods)
+  const [servicePointSelected, setServicePointSelected] = useState<boolean>(
+    !!(cart as any)?.metadata?.sendcloud?.to_service_point
+  )
 
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -80,10 +82,15 @@ const Shipping: React.FC<ShippingProps> = ({
     (sm) => sm.service_zone?.fulfillment_set?.type === "pickup"
   )
 
-  console.log("shippingMethods : ", _shippingMethods)
-  console.log("pickupMethods", _pickupMethods)
-
   const hasPickupOptions = !!_pickupMethods?.length
+
+  // Vérifie si la méthode de livraison sélectionnée nécessite un point relais
+  const selectedShippingMethod = availableShippingMethods?.find(
+    (sm) => sm.id === shippingMethodId
+  )
+  const isServicePointRequired = !!(selectedShippingMethod as any)?.data?.service_point_required ||
+    selectedShippingMethod?.name?.toLowerCase().includes('relais') ||
+    selectedShippingMethod?.name?.toLowerCase().includes('mondial')
 
   useEffect(() => {
     setIsLoadingPrices(true)
@@ -115,7 +122,7 @@ const Shipping: React.FC<ShippingProps> = ({
     router.push(pathname + "?step=delivery", { scroll: false })
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     router.push(pathname + "?step=payment", { scroll: false })
   }
 
@@ -124,6 +131,8 @@ const Shipping: React.FC<ShippingProps> = ({
     variant: "shipping" | "pickup"
   ) => {
     setError(null)
+    // Reset service point selection when changing shipping method
+    setServicePointSelected(false)
 
     if (variant === "pickup") {
       setShowPickupOptions(PICKUP_OPTION_ON)
@@ -142,10 +151,13 @@ const Shipping: React.FC<ShippingProps> = ({
       (method) => method.id === currentId
     )
 
-    console.log("Je suis juste avant setShippingMethod")
 
+    let success = false
 
     await setShippingMethod({ cartId: cart.id, shippingMethodId: id })
+      .then(() => {
+        success = true
+      })
       .catch((err) => {
         setShippingMethodId(currentId)
 
@@ -154,6 +166,11 @@ const Shipping: React.FC<ShippingProps> = ({
       .finally(() => {
         setIsLoading(false)
       })
+
+    // Ensure server components receive the updated cart quickly
+    if (success) {
+      router.refresh()
+    }
   }
 
   useEffect(() => {
@@ -183,13 +200,13 @@ const Shipping: React.FC<ShippingProps> = ({
           cart?.billing_address &&
           cart?.email && (
             <Text>
-              <button
+              <Button
                 onClick={handleEdit}
-                className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
+                variant="secondary"
                 data-testid="edit-delivery-button"
               >
                 Modifier
-              </button>
+              </Button>
             </Text>
           )}
       </div>
@@ -206,44 +223,6 @@ const Shipping: React.FC<ShippingProps> = ({
             </div>
             <div data-testid="delivery-options-container">
               <div className="pb-8 md:pt-0 pt-2">
-                {hasPickupOptions && (
-                  <RadioGroup
-                    value={showPickupOptions}
-                    onChange={(value) => {
-                      const id = _pickupMethods.find(
-                        (option) => !option.insufficient_inventory
-                      )?.id
-
-                      if (id) {
-                        handleSetShippingMethod(id, "shipping")
-                      }
-                    }}
-                  >
-                    <Radio
-                      value={PICKUP_OPTION_ON}
-                      data-testid="delivery-option-radio"
-                      className={clx(
-                        "flex items-center justify-between text-small-regular cursor-pointer py-4 border rounded-rounded px-8 mb-2 hover:shadow-borders-interactive-with-active",
-                        {
-                          "border-ui-border-interactive":
-                            showPickupOptions === PICKUP_OPTION_ON,
-                        }
-                      )}
-                    >
-                      <div className="flex items-center gap-x-4">
-                        <MedusaRadio
-                          checked={showPickupOptions === PICKUP_OPTION_ON}
-                        />
-                        <span className="text-base-regular">
-                          Retrait en magasin
-                        </span>
-                      </div>
-                      <span className="justify-self-end text-ui-fg-base">
-                        -
-                      </span>
-                    </Radio>
-                  </RadioGroup>
-                )}
                 <RadioGroup
                   value={shippingMethodId}
                   onChange={(v) => handleSetShippingMethod(v, "shipping")}
@@ -299,18 +278,28 @@ const Shipping: React.FC<ShippingProps> = ({
                     )
                   })}
                 </RadioGroup>
+
+                {/* Affiche le sélecteur de point relais si la méthode sélectionnée le requiert */}
+                {isServicePointRequired && shippingMethodId && (
+                  <SendcloudPickup
+                    cartId={cart.id}
+                    current={(cart as any)?.metadata?.sendcloud}
+                    shippingAddress={cart.shipping_address}
+                    onPointSelected={() => setServicePointSelected(true)}
+                  />
+                )}
               </div>
             </div>
           </div>
 
-          {showPickupOptions === PICKUP_OPTION_ON && (
+          {hasPickupOptions && (
             <div className="grid">
               <div className="flex flex-col">
                 <span className="font-medium txt-medium text-ui-fg-base">
-                  Magasin
+                  Click & Collect
                 </span>
                 <span className="mb-4 text-ui-fg-muted txt-medium">
-                  CHoisissez un commerce près de chez vous
+                  Choisissez de récupérer votre commande en main propre
                 </span>
               </div>
               <div data-testid="delivery-options-container">
@@ -377,11 +366,21 @@ const Shipping: React.FC<ShippingProps> = ({
               className="mt"
               onClick={handleSubmit}
               isLoading={isLoading}
-              disabled={!cart.shipping_methods?.[0]}
+              disabled={
+                !shippingMethodId || 
+                isLoading || 
+                (isServicePointRequired && !servicePointSelected)
+              }
               data-testid="submit-delivery-option-button"
             >
               Continuer vers le paiement
             </Button>
+            
+            {isServicePointRequired && !servicePointSelected && (
+              <p className="text-rose-500 text-sm mt-2">
+                Veuillez sélectionner un point relais avant de continuer.
+              </p>
+            )}
           </div>
         </>
       ) : (

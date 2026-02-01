@@ -25,8 +25,6 @@ export default async function OrderDetailPage(props: Props) {
   const params = await props.params
   const order = await retrieveOrder(params.id).catch(() => null)
 
-  console.log("Je réaffiche l'order à la source : ", order)
-
   if (!order) {
     notFound()
   }

@@ -2,7 +2,7 @@
 
 import { setAddresses } from "@lib/data/cart"
 import compareAddresses from "@lib/util/compare-addresses"
-import { CheckCircleSolid } from "@medusajs/icons"
+import { Button, CheckCircleSolid } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Heading, Text, useToggleState } from "@medusajs/ui"
 import Divider from "@modules/common/components/divider"
@@ -51,13 +51,13 @@ const Addresses = ({
         </Heading>
         {!isOpen && cart?.shipping_address && (
           <Text>
-            <button
+            <Button
               onClick={handleEdit}
-              className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
+              variant="secondary"
               data-testid="edit-address-button"
             >
               Modifier
-            </button>
+            </Button>
           </Text>
         )}
       </div>

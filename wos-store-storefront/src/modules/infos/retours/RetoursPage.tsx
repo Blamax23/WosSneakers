@@ -20,19 +20,6 @@ const Retours: React.FC = () => {
             </p>
             
             <p>
-                Le retour de certains types de marchandises n'est pas autorisé. Ainsi, les denrées périssables, telles que les aliments, les fleurs, les journaux ou les magazines, ne peuvent pas être retournées. De même, nous n'acceptons pas les produits intimes ou sanitaires, les matières ou substances dangereuses, ni les liquides ou les gaz inflammables.
-            </p>
-            
-            <div>
-                <p className="mb-2">Autres articles dont le retour n'est pas autorisé :</p>
-                <ul className="list-disc pl-6 mb-4">
-                    <li>Cartes-cadeaux</li>
-                    <li>Logiciels téléchargeables</li>
-                    <li>Certains produits de santé et de soin personnel</li>
-                </ul>
-            </div>
-            
-            <p>
                 Pour compléter votre retour, nous exigeons un reçu ou une preuve d'achat.<br/>
                 Ne retournez pas votre achat au fabricant.
             </p>
@@ -40,8 +27,6 @@ const Retours: React.FC = () => {
             <div>
                 <p className="mb-2">Dans certains cas, seuls des remboursements partiels sont accordés :</p>
                 <ul className="list-disc pl-6 mb-4">
-                    <li>Livres montrant des signes d'utilisation évidents</li>
-                    <li>CD, DVD, cassettes VHS, logiciels, jeux vidéo, cassettes audio ou disques en vinyle ayant été ouverts</li>
                     <li>Tout article qui n'est pas dans son état d'origine, qui est endommagé ou auquel il manque des pièces pour une raison non due à une erreur de notre part</li>
                     <li>Tout article retourné plus de 14 jours après sa livraison</li>
                 </ul>
@@ -67,19 +52,7 @@ const Retours: React.FC = () => {
             </div>
             
             <div>
-                <p className="font-semibold mb-2">Échanges</p>
-                <p>Nous ne remplaçons que les articles initialement défectueux ou endommagés. Si vous devez remplacer le vôtre par le même article, adressez-nous un e-mail à <span className="underline">wossneakers@gmail.com</span> et envoyez votre article à : 257 Rue des Blés d'Or, Saint-Denis-lès-Bourg, 01000, France.</p>
-            </div>
-            
-            <div>
-                <p className="font-semibold mb-2">Cadeaux</p>
-                <p>Si l'article a été marqué comme cadeau au moment de l'achat et s'il vous a été expédié directement, vous recevrez un crédit cadeau d'une valeur équivalente à celle de l'article retourné. Une fois l'article retourné reçu, un bon cadeau vous sera envoyé par voie postale.</p>
-                <p className="mt-2">Si l'article n'a pas été marqué comme cadeau au moment de l'achat, ou si la personne à l'origine du cadeau s'est fait envoyer la commande dans le but de vous la remettre plus tard, c'est à elle que nous adresserons le remboursement et elle saura donc que vous avez retourné son cadeau.</p>
-            </div>
-            
-            <div>
                 <p className="font-semibold mb-2">Expédition</p>
-                <p>Pour retourner votre produit, vous devez l'envoyer à l'adresse postale suivante : 256 Rue des Blès d'Or, 01400, Saint-Denis-lès-Bourg, France.</p>
                 <p className="mt-2">Les coûts d'expédition liés au retour de votre article sont à votre charge. Ils ne sont pas remboursables.</p>
                 <p className="mt-2">Selon l'endroit où vous vivez, le délai de réception de votre produit échangé peut varier.</p>
                 <p className="mt-2">Si vous expédiez un article d'une valeur supérieure à 75 €, nous vous recommandons d'utiliser un service de suivi d'expédition ou de faire assurer votre envoi. Nous ne garantissons pas que nous recevions l'article retourné.</p>
