@@ -1,7 +1,6 @@
 "use client"
 
 import { useSearchParams, usePathname, useRouter } from "next/navigation"
-import { listCollections } from "@lib/data/collections"
 import { StoreCollection } from "@medusajs/types"
 import { useEffect, useState, useRef } from "react"
 
@@ -19,11 +18,16 @@ export default function GetCollectionsChoices({ collectionsChoisies }: Props) {
   const initialSelected = searchParams.get("collection_id")?.split(",") || []
   const [selectedLocal, setSelectedLocal] = useState<string[]>(initialSelected)
 
-  // Charger collections une fois
+  // Charger collections via l'API route
   useEffect(() => {
-    listCollections().then((res) => {
-      setCollections(res.collections)
-    })
+    fetch("/api/collections")
+      .then((res) => res.json())
+      .then((data) => {
+        setCollections(data.collections || [])
+      })
+      .catch((err) => {
+        console.error("Erreur lors du chargement des collections:", err)
+      })
   }, [])
 
   // Debounce pour push URL
@@ -52,9 +56,12 @@ export default function GetCollectionsChoices({ collectionsChoisies }: Props) {
     )
   }
 
+  // On affiche les collections récupérées
+  console.log("Collections disponibles:", collections)
+
   return (
     <div>
-      <h2 className="txt-compact-small-plus text-ui-fg-muted py-4">Collections</h2>
+      <h2 className="txt-compact-small-plus text-ui-fg-muted py-4">Marques</h2>
       <ul className="flex flex-col gap-2 max-h-60 overflow-y-auto py-1 w-full">
         {collections.map((c) => (
           <li key={c.id}>

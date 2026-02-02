@@ -9,20 +9,20 @@ export const metadata: Metadata = {
 }
 
 type Params = {
-  searchParams: {
+  searchParams: Promise<{
     sortBy?: SortOptions
     collection_id?: string
     page?: string
-    price?: string // ajoute ici si tu veux aussi le "price"
-  }
-  params: {
+    price?: string
+  }>
+  params: Promise<{
     countryCode: string
-  }
+  }>
 }
 
 export default async function StorePage({ searchParams, params }: Params) {
-  const { sortBy, collection_id, page, price } = searchParams
-  const { countryCode } = params
+  const { sortBy, collection_id, page, price } = await searchParams
+  const { countryCode } = await params
 
   return (
     <StoreTemplate
@@ -30,7 +30,7 @@ export default async function StorePage({ searchParams, params }: Params) {
       collection_id={collection_id}
       page={page}
       countryCode={countryCode}
-      price={price} // tu peux maintenant le passer où tu veux
+      price={price}
     />
   )
 }

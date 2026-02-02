@@ -38,11 +38,13 @@ export default function CategoryTemplate({
 
   return (
     <div
-      className="flex flex-col small:flex-row small:items-start py-6 content-container"
+      className="flex flex-col gap-y-10 lg:flex-row lg:items-start lg:gap-x-12 py-6 content-container"
       data-testid="category-container"
     >
-      <RefinementList sortBy={sort} data-testid="sort-by-container" />
-      <div className="w-full">
+      <div className="w-full lg:flex-[0_0_25%]">
+        <RefinementList sortBy={sort} data-testid="sort-by-container" />
+      </div>
+      <div className="w-full lg:flex-[0_0_75%]">
         <div className="flex flex-row mb-8 text-2xl-semi gap-4">
           {parents &&
             parents.map((parent) => (
